@@ -1,222 +1,254 @@
 <%- include('../../partials/header', { title: title }) %>
 
 <div class="row justify-content-center">
-  <div class="col-lg-10 col-xl-9">
-    <form action="<%= (typeof item !== 'undefined' && item) ? '/items/' + item.id + '/edit' : '/items' %>" 
-          method="POST" 
-          enctype="multipart/form-data">
-
-      <!-- HEADER FORM -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h4 mb-0 fw-semibold text-primary">
-          <i class="bi <%= (typeof item !== 'undefined' && item) ? 'bi-pencil-square' : 'bi-plus-circle-fill' %> me-2"></i>
-          <%= title %>
-        </h1>
-        <div>
-          <a href="<%= (typeof item !== 'undefined' && item) ? '/items/' + item.id : '/' %>" 
-             class="btn btn-outline-secondary btn-sm rounded-pill">Batal</a>
-          <button type="submit" class="btn btn-primary btn-sm rounded-pill ms-2">
-            <i class="bi bi-save-fill me-1"></i> Simpan Aset
-          </button>
-        </div>
-      </div>
-
-      <!-- ALERT ERROR -->
-      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
-        <div class="alert alert-danger small" role="alert">
-          <strong>Gagal menyimpan!</strong> <%= errorMessage %>
-        </div>
-      <% } %>
-
-      <!-- BAGIAN 1: KATEGORI & INFO UTAMA -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body p-4">
-          <div class="row g-3">
-            <div class="col-md-8">
-              <label for="name" class="form-label">Nama Aset <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="name" name="name" 
-                     value="<%= (typeof item !== 'undefined' && item) ? item.name : '' %>" required>
-            </div>
-            <div class="col-md-4">
-              <label for="category" class="form-label">Kategori <span class="text-danger">*</span></label>
-              <select class="form-select" id="category" name="categoryId" required>
-                <option value="" disabled <%= !(typeof item !== 'undefined' && item) ? 'selected' : '' %>>Pilih Kategori...</option>
-                <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
-                  <% categories.forEach(category => { %>
-                    <option value="<%= category.id %>"
-                            data-category-name="<%= category.name %>"
-                            <%= (typeof item !== 'undefined' && item && item.categoryId == category.id) ? 'selected' : '' %>>
-                      <%= category.name %>
-                    </option>
-                  <% }); %>
-                <% } %>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- BAGIAN 2: DETAIL & SPESIFIKASI -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary mb-3">Detail Aset</h5>
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label for="no_inventaris" class="form-label">No. Inventaris</label>
-              <input type="text" class="form-control" id="no_inventaris" name="no_inventaris" value="<%= item?.no_inventaris || '' %>">
-            </div>
-            <div class="col-md-4">
-              <label for="serial_number" class="form-label">Serial Number</label>
-              <input type="text" class="form-control" id="serial_number" name="serial_number" value="<%= item?.serial_number || '' %>">
-            </div>
-            <div class="col-md-4">
-              <label for="model" class="form-label">Model</label>
-              <input type="text" class="form-control" id="model" name="model" value="<%= item?.model || '' %>">
-            </div>
-
-            <!-- Lokasi / Departemen -->
-            <div class="col-md-6 dynamic-field" id="locationField">
-              <label for="location" class="form-label">Lokasi</label>
-              <select class="form-select" id="location" name="locationId">
-                <option value="">Pilih Lokasi...</option>
-                <% locations.forEach(location => { %>
-                  <option value="<%= location.id %>" <%= item?.locationId == location.id ? 'selected' : '' %>><%= location.name %></option>
-                <% }); %>
-              </select>
-            </div>
-            <div class="col-md-6 dynamic-field" id="departmentField">
-              <label for="department" class="form-label">Departemen</label>
-              <select class="form-select" id="department" name="departmentId">
-                <option value="">Pilih Departemen...</option>
-                <% departments.forEach(department => { %>
-                  <option value="<%= department.id %>" <%= item?.departmentId == department.id ? 'selected' : '' %>><%= department.name %></option>
-                <% }); %>
-              </select>
-            </div>
-
-            <!-- Host PC Name -->
-            <div class="col-md-6 dynamic-field" id="hostPcField">
-              <label for="host_pc_name" class="form-label">Host PC Name</label>
-              <input type="text" class="form-control" id="host_pc_name" name="host_pc_name" value="<%= item?.host_pc_name || '' %>">
-            </div>
-
-            <!-- Field Kategori Spesifik -->
-            <div class="col-12" id="specificFieldsContainer">
-              <fieldset class="category-fieldset d-none" id="Laptop/PC">
-                <div class="row g-3 mt-1">
-                  <div class="col-md-4"><label class="form-label">Processor</label><input type="text" class="form-control" name="Processor" value="<%= item?.Processor || '' %>"></div>
-                  <div class="col-md-4"><label class="form-label">RAM</label><input type="text" class="form-control" name="RAM" value="<%= item?.RAM || '' %>"></div>
-                  <div class="col-md-4"><label class="form-label">Storage</label><input type="text" class="form-control" name="Storage" value="<%= item?.Storage || '' %>"></div>
-                  <div class="col-md-4"><label class="form-label">Operating System</label><input type="text" class="form-control" name="Operating_System" value="<%= item?.Operating_System || '' %>"></div>
+    <div class="col-lg-10 col-xl-9">
+        <form action="<%= item ? '/items/' + item.id : '/items' %>" method="POST" enctype="multipart/form-data">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h4 mb-0 fw-semibold text-primary"><i class="bi <%= item ? 'bi-pencil-square' : 'bi-plus-circle-fill' %> me-2"></i><%= title %></h1>
+                <div>
+                    <a href="<%= item ? '/items/' + item.id : '/' %>" class="btn btn-outline-secondary btn-sm rounded-pill">Batal</a>
+                    <button type="submit" class="btn btn-primary btn-sm rounded-pill ms-2"><i class="bi bi-save-fill me-1"></i> Simpan Aset</button>
                 </div>
-              </fieldset>
-              <fieldset class="category-fieldset d-none" id="Printer">
-                <div class="row g-3 mt-1">
-                  <div class="col-md-4"><label class="form-label">Tipe Tinta</label><input type="text" class="form-control" name="Tipe_Tinta" value="<%= item?.Tipe_Tinta || '' %>"></div>
-                  <div class="col-md-4"><label class="form-label">Konektivitas</label><input type="text" class="form-control" name="Konektivitas" value="<%= item?.Konektivitas || '' %>"></div>
-                </div>
-              </fieldset>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- BAGIAN 3: INFO TAMBAHAN -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary mb-3">Info Tambahan</h5>
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label for="purchase_date" class="form-label">Tanggal Beli</label>
-              <input type="date" class="form-control" id="purchase_date" name="purchase_date" value="<%= item?.purchase_date ? new Date(item.purchase_date).toISOString().split('T')[0] : '' %>">
-            </div>
-            <div class="col-md-4">
-              <label for="condition" class="form-label">Kondisi <span class="text-danger">*</span></label>
-              <select class="form-select" id="condition" name="condition" required>
-                <option value="Baik" <%= item?.condition === 'Baik' ? 'selected' : '' %>>Baik</option>
-                <option value="Perlu Perbaikan" <%= item?.condition === 'Perlu Perbaikan' ? 'selected' : '' %>>Perlu Perbaikan</option>
-                <option value="Rusak" <%= item?.condition === 'Rusak' ? 'selected' : '' %>>Rusak</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label for="pic_name" class="form-label">Nama PIC</label>
-              <input type="text" class="form-control" id="pic_name" name="pic_name" value="<%= item?.pic_name || '' %>">
-            </div>
-            <div class="col-12">
-              <label for="notes" class="form-label">Catatan</label>
-              <textarea class="form-control" id="notes" name="notes" rows="3"><%= item?.notes || '' %></textarea>
-            </div>
-            <div class="col-12">
-              <label for="image" class="form-label">Upload Gambar Aset</label>
-              <input class="form-control" type="file" id="image" name="image" accept="image/png, image/jpeg">
-              <% if (item?.image_url) { %>
-                <div class="mt-2">
-                  <small>Gambar saat ini:</small>
-                  <img src="<%= item.image_url %>" alt="Gambar Aset" style="max-width:150px; display:block; margin-top:5px; border-radius:4px;">
+            <%# Tampilkan pesan error jika ada %>
+            <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+                <div class="alert alert-danger small" role="alert">
+                    <strong>Gagal menyimpan!</strong> <%= errorMessage %>
                 </div>
-              <% } %>
-            </div>
-          </div>
-        </div>
-      </div>
+            <% } %>
 
-      <div class="form-footer text-end mb-5">
-        <a href="<%= (typeof item !== 'undefined' && item) ? '/items/' + item.id : '/' %>" 
-           class="btn btn-outline-secondary rounded-pill">Batal</a>
-        <button type="submit" class="btn btn-primary rounded-pill ms-2">
-          <i class="bi bi-save-fill me-1"></i> Simpan Aset
-        </button>
-      </div>
-    </form>
-  </div>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    
+                    <%# --- BAGIAN 1: KATEGORI & INFO UTAMA --- %>
+                    <h6 class="fw-semibold text-primary-emphasis mb-3 border-bottom pb-2">Informasi Utama</h6>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label for="categorySelector" class="form-label small">Kategori Perangkat <span class="text-danger">*</span></label>
+                            <select name="categoryId" id="categorySelector" class="form-select" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                <% categories.forEach(cat => { %>
+                                    <%# 'item.category.name' dibutuhkan oleh JS jika 'item' ada %>
+                                    <option value="<%= cat.id %>" data-category-name="<%= cat.name %>" <%= (item && item.categoryId == cat.id) ? 'selected' : '' %>><%= cat.name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="name" class="form-label small">Nama Aset <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" value="<%= item ? item.name : '' %>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="model" class="form-label small">Model / Tipe</label>
+                            <input type="text" class="form-control" id="model" name="model" value="<%= item ? item.model : '' %>">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="serial_number" class="form-label small">Serial Number</label>
+                            <input type="text" class="form-control" id="serial_number" name="serial_number" value="<%= item ? item.serial_number : '' %>">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="no_inventaris" class="form-label small">No. Inventaris</label>
+                            <input type="text" class="form-control" id="no_inventaris" name="no_inventaris" value="<%= item ? item.no_inventaris : '' %>">
+                        </div>
+                    </div>
+
+                    <%# --- BAGIAN 2: INFO PEMBELIAN & STATUS --- %>
+                    <h6 class="fw-semibold text-primary-emphasis mt-4 mb-3 border-bottom pb-2">Status & Kepemilikan</h6>
+                    <div class="row g-3">
+                         <div class="col-md-4">
+                            <label for="purchase_date" class="form-label small">Tanggal Beli</label>
+                            <% const purchaseDate = item && item.purchase_date ? new Date(item.purchase_date).toISOString().split('T')[0] : '' %>
+                            <input type="date" class="form-control" id="purchase_date" name="purchase_date" value="<%= purchaseDate %>">
+                        </div>
+                         <div class="col-md-4">
+                            <label for="condition" class="form-label small">Kondisi <span class="text-danger">*</span></label>
+                            <select name="condition" id="condition" class="form-select" required>
+                                <option value="Baik" <%= (item && item.condition === 'Baik') ? 'selected' : '' %>>Baik</option>
+                                <option value="Rusak Ringan" <%= (item && item.condition === 'Rusak Ringan') ? 'selected' : '' %>>Rusak Ringan</option>
+                                <option value="Rusak" <%= (item && item.condition === 'Rusak') ? 'selected' : '' %>>Rusak</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="pic_name" class="form-label small">PIC / Pengguna <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="pic_name" name="pic_name" value="<%= item ? item.pic_name : '' %>" required>
+                        </div>
+                    </div>
+
+                    
+                    <%# --- BAGIAN 3: LOKASI, DEPT, SPESIFIKASI (DINAMIS) --- %>
+                    <%# 'item.category' dibutuhkan di sini, yang sudah diperbaiki di controller %>
+                    <div id="dynamicFormContainer" class="<%= (item && item.category) ? '' : 'd-none' %>"> 
+                        
+                        <h6 class="fw-semibold text-primary-emphasis mt-4 mb-3 border-bottom pb-2">Lokasi & Spesifikasi</h6>
+                        <div class="row g-3">
+                            <%# Host PC (Hanya untuk Laptop/PC) %>
+                            <div class="col-md-12 category-fieldset d-none" id="Laptop/PC_host_pc_name">
+                                <label for="host_pc_name" class="form-label small">Host PC Name</label>
+                                <input type="text" class="form-control" id="host_pc_name" name="host_pc_name" value="<%= item ? item.host_pc_name : '' %>">
+                            </div>
+
+                            <%# Lokasi (Tampil untuk NON-Laptop/PC) %>
+                            <div class="col-md-6" id="locationField">
+                                <label for="locationId" class="form-label small">Lokasi</label>
+                                <select name="locationId" id="locationId" class="form-select">
+                                    <option value="">-- Pilih Lokasi --</option>
+                                    <% locations.forEach(loc => { %>
+                                        <option value="<%= loc.id %>" <%= (item && item.locationId == loc.id) ? 'selected' : '' %>><%= loc.name %></option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                            
+                            <%# Departemen (Hanya untuk Laptop/PC) %>
+                            <div class="col-md-6" id="departmentField">
+                                <label for="departmentId" class="form-label small">Departemen</label>
+                                <select name="departmentId" id="departmentId" class="form-select">
+                                    <option value="">-- Pilih Departemen --</option>
+                                    <% departments.forEach(dept => { %>
+                                        <option value="<%= dept.id %>" <%= (item && item.departmentId == dept.id) ? 'selected' : '' %>><%= dept.name %></option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                        </div>
+
+                        <%# Container untuk semua fieldset spesifikasi %>
+                        <div id="specificFieldsContainer" class="mt-3">
+                            
+                            <%# Fieldset Laptop/PC (Value menggunakan item.Processor, dll) %>
+                            <fieldset class="category-fieldset d-none p-3 bg-light-subtle rounded" id="Laptop/PC">
+                                <legend class="fw-medium small mb-2">Spesifikasi Laptop/PC</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-4"><label for="processor" class="form-label small">Processor</label><input type="text" class="form-control form-control-sm" id="processor" name="Processor" value="<%= item ? (item.Processor || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="ram" class="form-label small">RAM</label><input type="text" class="form-control form-control-sm" id="ram" name="RAM" value="<%= item ? (item.RAM || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="vga" class="form-label small">VGA</label><input type="text" class="form-control form-control-sm" id="vga" name="VGA" value="<%= item ? (item.VGA || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="ssd" class="form-label small">SSD</label><input type="text" class="form-control form-control-sm" id="ssd" name="SSD" value="<%= item ? (item.SSD || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="hdd" class="form-label small">HDD</label><input type="text" class="form-control form-control-sm" id="hdd" name="HDD" value="<%= item ? (item.HDD || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="operating_system" class="form-label small">Operating System</label><input type="text" class="form-control form-control-sm" id="operating_system" name="Operating_System" value="<%= item ? (item.Operating_System || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="ms_office" class="form-label small">MS Office</label><input type="text" class="form-control form-control-sm" id="ms_office" name="MS_Office" value="<%= item ? (item.MS_Office || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="anydesk_id" class="form-label small">Anydesk ID</label><input type="text" class="form-control form-control-sm" id="anydesk_id" name="Anydesk_ID" value="<%= item ? (item.Anydesk_ID || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="ip_address_laptop" class="form-label small">IP Address</label><input type="text" class="form-control form-control-sm" id="ip_address_laptop" name="IP_Address" value="<%= item ? (item.IP_Address || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="mac_address_laptop" class="form-label small">MAC Address</label><input type="text" class="form-control form-control-sm" id="mac_address_laptop" name="MAC_Address" value="<%= item ? (item.MAC_Address || '') : '' %>"></div>
+                                </div>
+                            </fieldset>
+                            
+                            <%# Fieldset Jaringan %>
+                            <fieldset class="category-fieldset d-none p-3 bg-light-subtle rounded" id="Jaringan">
+                                <legend class="fw-medium small mb-2">Spesifikasi Jaringan</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-4"><label for="fungsi" class="form-label small">Fungsi</label><input type="text" class="form-control form-control-sm" id="fungsi" name="Fungsi" value="<%= item ? (item.Fungsi || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="ip_address_jaringan" class="form-label small">IP Address</label><input type="text" class="form-control form-control-sm" id="ip_address_jaringan" name="IP_Address" value="<%= item ? (item.IP_Address || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="mac_address_jaringan" class="form-label small">MAC Address</label><input type="text" class="form-control form-control-sm" id="mac_address_jaringan" name="MAC_Address" value="<%= item ? (item.MAC_Address || '') : '' %>"></div>
+                                    <div class="col-md-4"><label for="os_version" class="form-label small">OS Version</label><input type="text" class="form-control form-control-sm" id="os_version" name="OS_Version" value="<%= item ? (item.OS_Version || '') : '' %>"></div>
+                                </div>
+                            </fieldset>
+                            
+                            <%# Fieldset CCTV & Peripheral %>
+                            <fieldset class="category-fieldset d-none p-3 bg-light-subtle rounded" id="CCTV">
+                                <legend class="fw-medium small mb-2">Spesifikasi CCTV</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-6"><label for="jenis_perangkat_cctv" class="form-label small">Jenis Perangkat</label><input type="text" class="form-control form-control-sm" id="jenis_perangkat_cctv" name="Jenis_Perangkat" value="<%= item ? (item.Jenis_Perangkat || '') : '' %>"></div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="category-fieldset d-none p-3 bg-light-subtle rounded" id="Peripheral">
+                                <legend class="fw-medium small mb-2">Spesifikasi Peripheral</legend>
+                                <div class="row g-3">
+                                    <div class="col-md-6"><label for="jenis_perangkat_peripheral" class="form-label small">Jenis Perangkat</label><input type="text" class="form-control form-control-sm" id="jenis_perangkat_peripheral" name="Jenis_Perangkat" value="<%= item ? (item.Jenis_Perangkat || '') : '' %>"></div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <%# --- BAGIAN 4: GAMBAR & CATATAN --- %>
+                    <h6 class="fw-semibold text-primary-emphasis mt-4 mb-3 border-bottom pb-2">Lain-lain</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="image" class="form-label small">Upload Gambar Aset</label>
+                            <input class="form-control form-control-sm" type="file" id="image" name="image">
+                            
+                            <%# ===== SOLUSI JITU GAMBAR (PAKSA PATH) ===== %>
+                            <% if (item && item.image_url) { %>
+                                <%
+                                let formImagePath = item.image_url;
+                                if (formImagePath) {
+                                    formImagePath = formImagePath.trim(); // Hapus spasi
+                                    if (!formImagePath.startsWith('/')) {
+                                        formImagePath = '/' + formImagePath; // Paksa tambah '/'
+                                    }
+                                }
+                                %>
+                                <div class="mt-2 small text-muted">
+                                    <i class="bi bi-file-earmark-image"></i> File saat ini: 
+                                    <a href="<%= formImagePath %>" target="_blank"><%= formImagePath.split('/').pop() %></a>
+                                    <img src="<%= formImagePath %>" alt="Preview" class="img-thumbnail mt-2" style="max-height: 100px;">
+                                </div>
+                            <% } %>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="notes" class="form-label small">Catatan</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4"><%= item ? (item.notes || '') : '' %></textarea>
+                        </div>
+                    </div>
+
+                </div> <%# End card-body %>
+            </div> <%# End card %>
+
+        </form> <%# End Form %>
+    </div>
 </div>
 
-<!-- SCRIPT FORM DINAMIS -->
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const categorySelector = document.getElementById('category');
-    const dynamicFormContainer = document.getElementById('specificFieldsContainer');
-    const locationField = document.getElementById('locationField');
-    const departmentField = document.getElementById('departmentField');
-    const hostPcField = document.getElementById('hostPcField');
-    const specificFieldsContainer = document.getElementById('specificFieldsContainer');
-
-    function showRelevantFields() {
-      const selectedOption = categorySelector.options[categorySelector.selectedIndex];
-      if (!selectedOption || selectedOption.value === "") {
-        [locationField, departmentField, hostPcField, specificFieldsContainer].forEach(el => el.classList.add('d-none'));
-        specificFieldsContainer.querySelectorAll('.category-fieldset').forEach(fieldset => {
-          fieldset.classList.add('d-none');
-          fieldset.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = true; });
-        });
-        return;
-      }
-
-      const categoryName = selectedOption.getAttribute('data-category-name');
-      const isLaptopPC = categoryName === 'Laptop/PC';
-
-      locationField.classList.toggle('d-none', isLaptopPC);
-      departmentField.classList.toggle('d-none', !isLaptopPC);
-      hostPcField.classList.toggle('d-none', !isLaptopPC);
-
-      locationField.querySelector('select').disabled = isLaptopPC;
-      departmentField.querySelector('select').disabled = !isLaptopPC;
-      hostPcField.querySelector('input').disabled = !isLaptopPC;
-
-      locationField.querySelector('select').required = !isLaptopPC;
-      departmentField.querySelector('select').required = isLaptopPC;
-
-      dynamicFormContainer.classList.remove('d-none');
-      specificFieldsContainer.querySelectorAll('.category-fieldset').forEach(fieldset => {
-        const isTarget = fieldset.id === categoryName;
-        fieldset.classList.toggle('d-none', !isTarget);
-        fieldset.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = !isTarget; });
-      });
-    }
-
-    categorySelector.addEventListener('change', showRelevantFields);
-    showRelevantFields(); // Jalankan saat halaman dimuat (untuk mode edit)
-  });
-</script>
-
 <%- include('../../partials/footer') %>
+
+<%# --- JAVASCRIPT DINAMIS (PENTING!) --- %>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categorySelector = document.getElementById('categorySelector');
+        const dynamicFormContainer = document.getElementById('dynamicFormContainer');
+        const locationField = document.getElementById('locationField');
+        const departmentField = document.getElementById('departmentField');
+        const locationSelect = document.getElementById('locationId');
+        const departmentSelect = document.getElementById('departmentId');
+        const specificFieldsContainer = document.getElementById('specificFieldsContainer');
+        const hostPcField = document.getElementById('Laptop/PC_host_pc_name'); 
+
+        function showRelevantFields() {
+            const selectedOption = categorySelector.options[categorySelector.selectedIndex];
+            
+            if (!selectedOption || !selectedOption.value) {
+                dynamicFormContainer.classList.add('d-none');
+                locationSelect.disabled = true; departmentSelect.disabled = true;
+                locationSelect.required = false; departmentSelect.required = false;
+                 specificFieldsContainer.querySelectorAll('.category-fieldset').forEach(fieldset => {
+                    fieldset.classList.add('d-none');
+                    fieldset.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = true; });
+                });
+                hostPcField.classList.add('d-none'); 
+                hostPcField.querySelector('input').disabled = true;
+                return;
+            }
+
+            dynamicFormContainer.classList.remove('d-none');
+            // Ambil nama kategori dari 'data-category-name'
+            const categoryName = selectedOption.getAttribute('data-category-name'); 
+
+            const isLaptopPC = categoryName === 'Laptop/PC';
+            locationField.classList.toggle('d-none', isLaptopPC);
+            departmentField.classList.toggle('d-none', !isLaptopPC);
+            locationSelect.disabled = isLaptopPC; departmentSelect.disabled = !isLaptopPC;
+            locationSelect.required = !isLaptopPC; departmentSelect.required = isLaptopPC;
+
+            hostPcField.classList.toggle('d-none', !isLaptopPC);
+            hostPcField.querySelector('input').disabled = !isLaptopPC;
+
+            specificFieldsContainer.querySelectorAll('.category-fieldset').forEach(fieldset => {
+                const isTarget = fieldset.id === categoryName;
+                fieldset.classList.toggle('d-none', !isTarget);
+                fieldset.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = !isTarget; });
+            });
+        }
+        categorySelector.addEventListener('change', showRelevantFields);
+        // Jalankan saat halaman dimuat untuk mengisi nilai form edit
+        showRelevantFields(); 
+    });
+</script>

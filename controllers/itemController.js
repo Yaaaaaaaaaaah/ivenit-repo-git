@@ -1,11 +1,12 @@
 const fs = require('fs');
 const path = require('path');
+// Impor Op langsung dari sequelize
 const { Item, Category, Location, Department, ItemSpecification, MaintenanceLog, Loan, sequelize } = require('../models');
-const { Op } = require('sequelize');
+const { Op } = require('sequelize'); // Op diimpor terpisah dari library sequelize
 const qrcode = require('qrcode');
-const cloudinary = require('cloudinary').v2;
 
-// ===== FUNGSI LIST (DASHBOARD) =====
+
+// ===== FUNGSI LIST (DASHBOARD) - (Sudah Benar) =====
 exports.list = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -34,11 +35,9 @@ exports.list = async (req, res) => {
             limit: limit,
             offset: offset,
         });
-
         const totalPages = Math.ceil(filteredCount / limit);
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const totalItemsAbsolute = await Item.count();
-
         const statusCountsRaw = await Item.findAll({
             attributes: ['availability_status', [sequelize.fn('COUNT', 'id'), 'count']],
             group: ['availability_status']
@@ -47,7 +46,6 @@ exports.list = async (req, res) => {
             acc[item.availability_status] = item.get('count');
             return acc;
         }, {});
-
         const categoryCountsRaw = await Item.findAll({
             include: [{ model: Category, as: 'category', attributes: ['name'] }],
             attributes: ['categoryId', [sequelize.fn('COUNT', sequelize.col('Item.id')), 'count']],
@@ -61,14 +59,13 @@ exports.list = async (req, res) => {
             }
             return acc;
         }, {});
-
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
         const recentMaintenances = await MaintenanceLog.findAll({
             where: {
                 activity_date: {
-                    [Op.between]: [startOfMonth, endOfMonth]
+                    [Op.between]: [startOfMonth, endOfMonth] 
                 }
             },
             order: [['activity_date', 'DESC']],
@@ -105,53 +102,52 @@ exports.list = async (req, res) => {
     }
 };
 
-// ===== FUNGSI SHOW (DETAIL) =====
+
+// ===== FUNGSI SHOW (DETAIL) - DIPERBAIKI =====
 exports.show = async (req, res) => {
     try {
         const item = await Item.findByPk(req.params.id, {
+            // PERBAIKAN: Memastikan SEMUA relasi (termasuk spek) diambil
             include: [
                 { model: Category, as: 'category' },
                 { model: Location, as: 'location' },
                 { model: Department, as: 'department' },
-                { model: ItemSpecification, as: 'specifications' },
+                { model: ItemSpecification, as: 'specifications' }, // <-- INI PENTING
                 { model: MaintenanceLog, as: 'logs', order: [['activity_date', 'DESC']] }
             ]
         });
-
         if (!item) {
             return res.status(404).send('Aset tidak ditemukan');
         }
-
         res.render('pages/items/detail', {
             title: `Detail Aset: ${item.name}`,
             item: item
         });
     } catch (error) {
-        console.error("Error showing item details:", error);
+        console.error("Error showing item details:", error); 
         res.status(500).send(error.message);
     }
 };
 
-// ===== FUNGSI SHOWCREATEFORM (TAMBAH) =====
+// ===== FUNGSI SHOWCREATEFORM (TAMBAH) - (Sudah Benar) =====
 exports.showCreateForm = async (req, res) => {
     try {
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const locations = await Location.findAll({ order: [['name', 'ASC']] });
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
-
         res.render('pages/items/form', {
             title: 'Tambah Aset Baru',
             item: null,
-            categories: categories,
-            locations: locations,
-            departments: departments
+            categories,
+            locations,
+            departments
         });
     } catch (error) {
         res.status(500).send(error.message);
     }
 };
 
-// ===== FUNGSI CREATE (SIMPAN BARU) - Versi CLOUDINARY =====
+// ===== FUNGSI CREATE (SIMPAN BARU) - (Sudah Benar) =====
 exports.create = async (req, res) => {
     const t = await sequelize.transaction();
     try {
@@ -160,7 +156,7 @@ exports.create = async (req, res) => {
             pic_name, notes, categoryId, locationId, departmentId, ...specs
         } = req.body;
 
-        const imageUrl = req.file ? req.file.path : null;
+        const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
         if (serial_number) {
             const existingSN = await Item.findOne({ where: { serial_number: serial_number } });
@@ -190,6 +186,7 @@ exports.create = async (req, res) => {
                 });
             }
         }
+
         if (specificationsToCreate.length > 0) {
             await ItemSpecification.bulkCreate(specificationsToCreate, { transaction: t });
         }
@@ -199,64 +196,65 @@ exports.create = async (req, res) => {
 
     } catch (error) {
         await t.rollback();
+        if (req.file) {
+            fs.unlink(path.join(__dirname, '..', 'public/uploads', req.file.filename), (err) => {
+                if (err) console.error("Gagal menghapus file setelah error:", err);
+            });
+        }
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const locations = await Location.findAll({ order: [['name', 'ASC']] });
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
         res.render('pages/items/form', {
             title: 'Tambah Aset Baru',
             item: req.body,
-            categories: categories,
-            locations: locations,
-            departments: departments,
+            categories,
+            locations,
+            departments,
             errorMessage: error.message
         });
     }
 };
 
-// ===== FUNGSI SHOWEDITFORM (EDIT) =====
+// ===== FUNGSI SHOWEDITFORM (EDIT) - DIPERBAIKI =====
 exports.showEditForm = async (req, res) => {
     try {
         const item = await Item.findByPk(req.params.id, {
+            // PERBAIKAN: Tambahkan include 'category' agar JS form bisa jalan
             include: [
-                { model: Category, as: 'category' },
+                { model: Category, as: 'category' }, // <-- INI PENTING
                 { model: ItemSpecification, as: 'specifications' }
-            ]
+            ] 
         });
-
-        if (!item) {
-            return res.status(404).send('Aset tidak ditemukan');
-        }
+        if (!item) return res.status(404).send('Aset tidak ditemukan');
 
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const locations = await Location.findAll({ order: [['name', 'ASC']] });
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
 
         const itemSpecs = item.specifications.reduce((acc, spec) => {
-            acc[spec.spec_key.replace(/ /g, '_')] = spec.spec_value;
+            acc[spec.spec_key.replace(/ /g, '_')] = spec.spec_value; 
             return acc;
         }, {});
 
         res.render('pages/items/form', {
             title: `Edit Aset: ${item.name}`,
-            item: { ...item.toJSON(), ...itemSpecs },
-            categories: categories,
-            locations: locations,
-            departments: departments
+            item: { ...item.get(), ...itemSpecs },
+            categories,
+            locations,
+            departments
         });
     } catch (error) {
         res.status(500).send(error.message);
     }
 };
 
-// ===== FUNGSI UPDATE (SIMPAN EDIT) - Versi CLOUDINARY =====
+// ===== FUNGSI UPDATE (SIMPAN EDIT) - (Sudah Benar) =====
 exports.update = async (req, res) => {
     const t = await sequelize.transaction();
     const itemId = req.params.id;
     try {
         const itemToUpdate = await Item.findByPk(itemId);
-        if (!itemToUpdate) {
-            return res.status(404).send('Aset tidak ditemukan');
-        }
+        if (!itemToUpdate) return res.status(404).send('Aset tidak ditemukan');
 
         const {
             name, no_inventaris, serial_number, model, host_pc_name, purchase_date, condition,
@@ -274,16 +272,11 @@ exports.update = async (req, res) => {
 
         let imageUrl = itemToUpdate.image_url;
         if (req.file) {
-            imageUrl = req.file.path;
-            if (itemToUpdate.image_url && itemToUpdate.image_url.includes('cloudinary')) {
-                const urlParts = itemToUpdate.image_url.split('/');
-                const publicIdWithExtension = urlParts.pop();
-                const folder = urlParts.pop();
-                if (publicIdWithExtension && folder) {
-                    const publicId = publicIdWithExtension.split('.')[0];
-                    cloudinary.uploader.destroy(`${folder}/${publicId}`);
-                }
+            if (itemToUpdate.image_url) {
+                const oldImagePath = path.join(__dirname, '..', 'public', itemToUpdate.image_url);
+                if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
             }
+            imageUrl = `/uploads/${req.file.filename}`;
         }
 
         await itemToUpdate.update({
@@ -316,6 +309,11 @@ exports.update = async (req, res) => {
 
     } catch (error) {
         await t.rollback();
+        if (req.file) {
+            fs.unlink(path.join(__dirname, '..', 'public/uploads', req.file.filename), (err) => {
+                if (err) console.error("Gagal menghapus file setelah error:", err);
+            });
+        }
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const locations = await Location.findAll({ order: [['name', 'ASC']] });
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
@@ -323,36 +321,29 @@ exports.update = async (req, res) => {
         res.render('pages/items/form', {
             title: `Edit Aset`,
             item: req.body,
-            categories: categories,
-            locations: locations,
-            departments: departments,
+            categories,
+            locations,
+            departments,
             errorMessage: error.message
         });
     }
 };
 
-// ===== FUNGSI DELETE & QRCODE =====
+
+// ===== FUNGSI DELETE & QRCODE - (Sudah Benar) =====
 exports.delete = async (req, res) => {
     try {
         const itemToDelete = await Item.findByPk(req.params.id);
-
-        if (itemToDelete && itemToDelete.image_url && itemToDelete.image_url.includes('cloudinary')) {
-            const urlParts = itemToDelete.image_url.split('/');
-            const publicIdWithExtension = urlParts.pop();
-            const folder = urlParts.pop();
-            if (publicIdWithExtension && folder) {
-                const publicId = publicIdWithExtension.split('.')[0];
-                // --- PERBAIKAN ---
-                // Kode Anda: cloudinary.uploader.destroy(${folder}/${publicId});
-                // Yang Benar: (menggunakan backticks ``)
-                cloudinary.uploader.destroy(`${folder}/${publicId}`);
+        if (itemToDelete && itemToDelete.image_url) {
+            const imagePath = path.join(__dirname, '..', 'public', itemToDelete.image_url);
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
             }
         }
 
         await Item.destroy({ where: { id: req.params.id } });
         res.redirect('/');
     } catch (error) {
-        console.error("Error deleting item:", error);
         res.status(500).send(error.message);
     }
 };
@@ -360,14 +351,12 @@ exports.delete = async (req, res) => {
 exports.qrCode = async (req, res) => {
     try {
         const item = await Item.findByPk(req.params.id);
-        if (!item) {
-            return res.status(404).send('Aset tidak ditemukan');
-        }
+        if (!item) return res.status(404).send('Aset tidak ditemukan');
 
-        const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+        const baseUrl = process.env.NGROK_URL || `${req.protocol}://${req.get('host')}`;
         const assetUrl = `${baseUrl}/items/${item.id}`;
 
-        const qrCodeDataUrl = await qcode.toDataURL(assetUrl, { errorCorrectionLevel: 'H' });
+        const qrCodeDataUrl = await qrcode.toDataURL(assetUrl, { errorCorrectionLevel: 'H' });
         res.send(`<img src="${qrCodeDataUrl}" alt="QR Code for ${item.name}" class="img-fluid">`);
     } catch (error) {
         console.error("Error generating QR code:", error);
