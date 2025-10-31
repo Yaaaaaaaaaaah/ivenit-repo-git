@@ -1,0 +1,18 @@
+<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="qrCodeModalLabel">QR Code untuk: <span id="assetNameInModal" class="fw-bold">...</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="qrCodeContainer" style="min-height: 150px; display: flex; align-items: center; justify-content: center;">
+                    <div class="spinner-border text-primary spinner-border-sm" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <button onclick="printQrCode()" class="btn btn-outline-secondary btn-sm mt-3"><i class="bi bi-printer-fill me-1"></i> Cetak QR</button>
+            </div>
+        </div>
+    </div>
+</div>

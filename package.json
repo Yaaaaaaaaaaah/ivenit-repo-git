@@ -1,0 +1,35 @@
+{
+  "name": "ivenit_be",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "seed": "node seeders/seed.js",
+    "update-cats": "node scripts/update_categories.js",
+    "import-new": "node scripts/import_new_data.js",
+    "cleanup": "node scripts/cleanup_duplicates.js",
+    "clean-new": "node scripts/delete_new_data.js",
+    "promote": "node scripts/promote_admin.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "connect-session-sequelize": "^8.0.2",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.15.2",
+    "qrcode": "^1.5.4",
+    "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

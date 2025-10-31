@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">IT Inventory</a>
+
+        <% if (session.userId) { %>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Daftar Aset</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/loans">Peminjaman</a>
+                    </li>
+                    
+                    <% if (session.userRole === 'Admin') { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users">Manajemen User</a>
+                    </li>
+                    <% } %>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Laporan
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/reports">Laporan Aset</a></li>
+                            <li><a class="dropdown-item" href="/reports/maintenance">Laporan Maintenance</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <span class="navbar-text me-3">Halo, <%= session.userName %></span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        <% } %>
+    </div>
+</nav>

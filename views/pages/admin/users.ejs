@@ -1,0 +1,58 @@
+<%- include('../../partials/header', { title: 'Manajemen Pengguna' }) %>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h5 class="mb-0 text-primary"><i class="bi bi-people-fill me-2"></i>Manajemen Pengguna</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0 align-middle small">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Nama</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (users && users.length > 0) { %>
+                        <% users.forEach(user => { %>
+                            <tr>
+                                <td class="ps-3 fw-medium"><%= user.name %></td>
+                                <td class="text-muted"><%= user.email %></td>
+                                <td><span class="badge text-bg-info rounded-pill fw-normal"><%= user.role %></span></td>
+                                <td>
+                                    <% if (user.status === 'Active') { %>
+                                        <span class="badge text-bg-success rounded-pill fw-normal"><%= user.status %></span>
+                                    <% } else { %>
+                                        <span class="badge text-bg-warning rounded-pill fw-normal"><%= user.status %></span>
+                                    <% } %>
+                                </td>
+                                <td class="text-center">
+                                    <% if (user.status === 'Pending') { %>
+                                        <form action="/admin/users/<%= user.id %>/approve" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-primary rounded-pill" title="Setujui Pengguna"><i class="bi bi-check-circle-fill me-1"></i> Setujui</button>
+                                        </form>
+                                    <% } else { %>
+                                        <span class="text-muted">-</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                         <tr><td colspan="5" class="text-center text-muted py-4 fst-italic">Belum ada pengguna terdaftar.</td></tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+     <% if (users && users.length > 0) { %>
+     <div class="card-footer bg-light text-muted small border-top py-2">
+        Total: <%= users.length %> pengguna.
+     </div>
+     <% } %>
+</div>
+
+<%- include('../../partials/footer') %>

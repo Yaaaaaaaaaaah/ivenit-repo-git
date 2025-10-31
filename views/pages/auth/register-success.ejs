@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi Berhasil - Inventaris IT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+     <style>
+         :root {  } [data-bs-theme="dark"] {  } [data-bs-theme="light"] {}
+        body { background-color: var(--bs-body-bg); color: var(--bs-body-color); transition: background-color 0.3s ease, color 0.3s ease; font-size: 0.9rem;}
+        .message-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 15px;}
+        .theme-toggle-corner { position: fixed; top: 1rem; right: 1rem; cursor: pointer; font-size: 1.1rem; z-index: 10; color: var(--bs-secondary-text-emphasis); padding: 0.3rem 0.6rem; border-radius: 50%;}
+        .theme-toggle-corner:hover { color: var(--bs-primary); background-color: var(--bs-tertiary-bg); }
+        [data-bs-theme="dark"] .theme-toggle-corner:hover { color: var(--bs-primary-text-emphasis); background-color: var(--bs-secondary-bg);}
+         .alert { border-radius: 0.5rem; border: 1px solid var(--bs-border-color-translucent); }
+         [data-bs-theme="dark"] .alert-success { background-color: var(--bs-success-bg-subtle); color: var(--bs-success-text-emphasis); border-color: var(--bs-success-border-subtle);}
+         .btn-sm { font-size: 0.8rem;}
+         .card { border: 1px solid var(--bs-border-color-translucent); background-color: var(--bs-card-bg); border-radius: 0.5rem; transition: background-color 0.3s ease, border-color 0.3s ease;} /* Style card untuk success message */
+    </style>
+     <script> (function() { const theme = localStorage.getItem('theme') || 'light'; document.documentElement.setAttribute('data-bs-theme', theme); })(); </script>
+</head>
+<body>
+    <span id="theme-toggler" class="theme-toggle-corner" title="Ganti Tema"> <i class="bi bi-sun-fill"></i> </span>
+    <div class="container message-container">
+         <div class="col-md-7 col-lg-6 text-center">
+             <div class="card shadow-lg border-success"> <div class="card-body p-4 p-md-5">
+                    <i class="bi bi-check-circle-fill display-3 text-success mb-3"></i>
+                    <h4 class="fw-semibold text-success">Registrasi Berhasil!</h4> <p class="mb-0 text-muted">Akun Anda telah dibuat. Mohon tunggu persetujuan dari administrator agar akun Anda dapat diaktifkan.</p>
+                    <hr class="my-4">
+                    <a href="/login" class="btn btn-primary btn-sm rounded-pill px-3"><i class="bi bi-arrow-left me-1"></i>Kembali ke Login</a>
+                </div>
+             </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script> const themeToggler = document.getElementById('theme-toggler'); const currentTheme = localStorage.getItem('theme') || 'light'; const htmlElement = document.documentElement; const sunIcon = '<i class="bi bi-sun-fill"></i>'; const moonIcon = '<i class="bi bi-moon-stars-fill"></i>'; if (currentTheme === 'dark') { themeToggler.innerHTML = moonIcon; } else { themeToggler.innerHTML = sunIcon; } themeToggler.addEventListener('click', () => { if (htmlElement.getAttribute('data-bs-theme') === 'dark') { htmlElement.setAttribute('data-bs-theme', 'light'); localStorage.setItem('theme', 'light'); themeToggler.innerHTML = sunIcon; } else { htmlElement.setAttribute('data-bs-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeToggler.innerHTML = moonIcon; } }); </script>
+</body>
+</html>

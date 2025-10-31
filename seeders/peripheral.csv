@@ -1,0 +1,25 @@
+name,model,no_inventaris,serial_number,location,pic_name,condition,purchase_date,notes,jenis_perangkat
+Fingerspot,Premier Series,-,-,Klaseman,HR/GA,Baik,-,Normal,FINGERPRINT
+Panasonic,KX-TES824,4150012012,-,Klaseman,Ruang Meeting Bawah,Baik,-,Normal,PABX
+Epson,Eco TankL3556,-,-,Klaseman,IT,Baik,-,Tidak ada No. Inventaris,PRINTER
+Brother,DCP-T720DW,4150012023,-,Klaseman,Marketing,Baik,-,Normal,PRINTER
+Epson,L360,4160032017,-,Klaseman,Marketing,Baik,-,Normal,PRINTER
+Brother,MFC-J3520,4160022017,-,Klaseman,Finance,Baik,-,Normal,PRINTER
+Epson,L5290,4150022024,-,Klaseman,Finance,Baik,-,Normal,PRINTER
+Epson,Eco Tank L5290,-,-,Klaseman,HR/GA,Baik,-,Tidak ada No. Inventaris,PRINTER
+Epson,L360,4150012018,-,Klaseman,HR/GA,Baik,-,Normal,PRINTER
+Brother,T500W,4160042017,-,Gito-Gati,Operasional,Baik,-,-,PRINTER
+Epson,L360,-,-,Gito-Gati,Operasional,Baik,-,No. Inventaris rusak,PRINTER
+Epson,LX310,4150032018,-,Gito-Gati,Operasional,Baik,-,-,PRINTER
+Brother,MFJ200,4150012014,-,Gito-Gati,Operasional,Baik,-,-,PRINTER
+Epson,L3150,-,-,Gito-Gati,RnD,Baik,-,Tidak ada No. Inventaris,PRINTER
+Epson,L360,4150042018,-,Gito-Gati,Warehouse,Baik,-,-,PRINTER
+Epson,L220,4150032017,-,Gito-Gati,Warehouse,Baik,-,-,PRINTER
+APC,BX 1600LI-MS,-,-,Klaseman,IT SPV,Baik,-,Tidak ada No. Inventaris,UPS
+APC,BX 1100LI-MS,-,-,Klaseman,IT Multimedia,Baik,-,Tidak ada No. Inventaris,UPS
+Prolink,PRO700 650VA,-,-,Klaseman,Marketing,Baik,-,Tidak ada No. Inventaris,UPS
+APC,BX800LI,-,-,Klaseman,Finance,Baik,-,No. Inventaris rusak,UPS
+APC,BX650LI,4250012018,-,Gito-Gati,RnD,Baik,-,-,UPS
+APC,BVX1200LI,4250022023,-,Gito-Gati,RnD,Baik,-,-,UPS
+APC,BVX1200LI,4190012022,-,Gito-Gati,Warehouse,Baik,-,-,UPS
+APC,BVX1200LI,-,-,Gito-Gati,QC,Baik,-,-,UPS

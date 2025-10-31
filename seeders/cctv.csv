@@ -1,0 +1,5 @@
+name,model,no_inventaris,serial_number,location,pic_name,condition,purchase_date,notes,jenis_perangkat
+Hikvision Tower Barat,DS-2CD2T25FWD-I8,-,-,Gito-Gati,Manager Operational,Baik,-,-,OUTDOOR
+Hikvision QC Timur,DS-2CD2T42WD-I8,-,-,Gito-Gati,Manager Operational,Baik,-,-,OUTDOOR
+Hikvision WH Utara,,-,-,Gito-Gati,Manager Operational,Baik,-,-,NVR
+Dlink Mekanik,DGS-1008MP,-,-,Gito-Gati,Manager Operational,Baik,-,-,HUB POE

@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+
+<h1>Daftar Aset IT</h1>
+<a href="/items/create" class="btn btn-primary">Tambah Aset Baru</a>
+
+<table class="table mt-3">
+  <thead>
+    <tr>
+      <th>Nama Aset</th>
+      <th>No. Inventaris</th>
+      <th>Kategori</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% assets.forEach(asset => { %>
+      <tr>
+        <td><%= asset.nama_aset %></td>
+        <td><%= asset.no_inventaris %></td>
+        <td><%= asset.kategori %></td>
+        <td>
+          <a href="/items/<%= asset.id %>" class="btn btn-info btn-sm">Detail</a>
+          </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<%- include('../partials/footer') %>

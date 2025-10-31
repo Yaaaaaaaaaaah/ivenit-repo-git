@@ -1,0 +1,104 @@
+</main>
+        <footer class="p-3 mt-auto text-center text-muted small border-top">
+            Copyright &copy; <%= new Date().getFullYear() %> IvenIT. All rights reserved.
+        </footer>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>
+        const themeToggler = document.getElementById('theme-toggler');
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        const htmlElement = document.documentElement;
+        const sunIcon = '<i class="bi bi-sun-fill"></i>';
+        const moonIcon = '<i class="bi bi-moon-stars-fill"></i>';
+        
+        if (htmlElement.getAttribute('data-bs-theme') === 'dark') {
+            themeToggler.innerHTML = moonIcon;
+        } else {
+            themeToggler.innerHTML = sunIcon;
+        }
+        
+        themeToggler.addEventListener('click', () => { 
+            if (htmlElement.getAttribute('data-bs-theme') === 'dark') { 
+                htmlElement.setAttribute('data-bs-theme', 'light'); 
+                localStorage.setItem('theme', 'light'); 
+                themeToggler.innerHTML = sunIcon; 
+            } else { 
+                htmlElement.setAttribute('data-bs-theme', 'dark'); 
+                localStorage.setItem('theme', 'dark'); 
+                themeToggler.innerHTML = moonIcon; 
+            } 
+        });
+    </script>
+    
+    <%# --- SKRIP JAM DIGITAL --- %>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit', 
+                hour12: false 
+            };
+            const timeString = now.toLocaleString('id-ID', options).replace(', pukul', ','); 
+            const clockElement = document.getElementById('live-clock');
+            if (clockElement) {
+                clockElement.textContent = timeString;
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+
+    <%# ===== SKRIP QR CODE (BARU DITAMBAHKAN) ===== %>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const qrCodeModal = document.getElementById('qrCodeModal');
+            if (qrCodeModal) {
+                qrCodeModal.addEventListener('show.bs.modal', event => {
+                    const button = event.relatedTarget; 
+                    const itemId = button.getAttribute('data-item-id');
+                    const itemName = button.getAttribute('data-item-name');
+                    const assetNameEl = qrCodeModal.querySelector('#assetNameInModal');
+                    const qrContainer = qrCodeModal.querySelector('#qrCodeContainer');
+                    assetNameEl.textContent = itemName; 
+                    qrContainer.innerHTML = `<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>`;
+                    fetch(`/items/${itemId}/qrcode`)
+                        .then(response => { 
+                            if (!response.ok) { throw new Error(`HTTP error! status: ${response.status}`); } 
+                            return response.text(); 
+                        })
+                        .then(html => { 
+                            qrContainer.innerHTML = html; 
+                        })
+                        .catch(error => { 
+                            console.error('Error fetching QR Code:', error); 
+                            qrContainer.innerHTML = '<p class="text-danger small fst-italic">Gagal memuat QR code.</p>'; 
+                        });
+                });
+                qrCodeModal.addEventListener('hidden.bs.modal', event => {
+                     const qrContainer = qrCodeModal.querySelector('#qrCodeContainer');
+                     qrContainer.innerHTML = `<div class="spinner-border text-primary spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>`;
+                     const assetNameEl = qrCodeModal.querySelector('#assetNameInModal'); 
+                     assetNameEl.textContent = '...'; 
+                });
+            }
+        });
+
+        function printQrCode() { 
+            const qrContainer = document.getElementById('qrCodeContainer'); 
+            const assetName = document.getElementById('assetNameInModal').textContent; 
+            const printWindow = window.open('', '_blank'); 
+            printWindow.document.write(`<html><head><title>QR Code ${assetName}</title></head><body style="text-align:center; padding-top: 2rem;"><h4>${assetName}</h4>${qrContainer.innerHTML}</body></html>`); 
+            printWindow.document.close(); 
+            setTimeout(() => { printWindow.print(); }, 500); 
+        }
+    </script>
+    <%# ========================================== %>
+</body>
+</html>

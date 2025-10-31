@@ -1,0 +1,32 @@
+name,model,no_inventaris,serial_number,location,pic_name,condition,purchase_date,notes,fungsi,ip_address,mac_address,os_version
+RO#TATONAS,MikroTik RB2011LS,-,3D7002F722B5,Klaseman,IT Support,Baik,-,-,Router,172.18.5.92/29 / 43.252.105.145/29,-,MikroTik RouterOS 6.47.2 (stable)
+TATONAS#SW_ML,Mikrotik Routerboard CRS326-24G-2S+RM,-,94550BE406EF,Klaseman,IT Support,Baik,-,-,Switch MultiLayer,15.29.10.1/24,C4:AD:34:8B:B6:63,6.44.5 (long-term)
+SW#GITO,"Mikrotik, RB2011-11L-IN, 10 Ports 5-100, 5-1G",-,607C051DDE73,Gito-Gati,IT Support,Baik,-,-,Switch,15.29.10.3/24,E4:8D:8C:19:05:2A,MikroTik RouterOS 6.32.1
+SW#RUKO,MikroTik RB 750 r2,-,67D207690CCF,Ruko,IT Support,Baik,-,-,Switch,15.29.10.4/24,64:D1:54:75:77:BD,MikroTik RouterOS 6.35.4
+Klas-R,Rocket M5 + RocketDish 30dB,-,-,Klaseman,IT Support,Baik,-,-,Access Point PtP,192.168.100.3,B4:FB:E4:58:41:E9,XW.v6.1.7
+Ruko,PowerBeam M5 400,-,-,Ruko,IT Support,Baik,-,-,Station,192.168.100.4,80:2A:A8:06:1A:D1,XW.v5.6.2
+Klas-G,Rocket M5ac Lite + RocketDish 30dB,-,-,Klaseman,IT Support,Baik,-,-,Access Point PtP,192.168.100.1,78:8A:20:AC:76:FB,XC.V8.0.2
+Gitogati,Rocket M5ac Lite + RocketDish 30dB,-,-,Gito-Gati,IT Support,Baik,-,-,Station,192.168.100.2,78:8A:20:AC:76:A1,XC.V8.0.2
+Box_Panel-MHub,"DLink DGS-1016D, 16 Ports, 1G",-,-,Klaseman,IT Support,Baik,-,-,Main HuB,-,-,-
+HRGA-Hub,"Dlink DES-1008C, 8 Ports 100M",-,-,Klaseman,IT Support,Baik,-,-,HUB,-,-,-
+Finance-HUB,"TP Link, TL SF 1005D, 5 Ports 100M",-,-,Klaseman,IT Support,Baik,-,-,HUB,-,-,-
+Server-Hub,"TP Link,TL SF 1008D, 8 Ports 100M",-,-,Klaseman,IT Support,Baik,-,-,HUB,-,-,-
+Server-Hub,"D-Link, DGS105, 5 Ports 1G",-,-,Klaseman,IT Support,Baik,-,-,HUB,-,-,-
+RND_Utara-Hub,"D-Link, DES-1008A, 8 Ports 100M",-,-,Klaseman,IT Support,Baik,-,-,HUB,-,-,-
+RND_Selatan-Hub,"TP Link, TL SF 1008D, 8 Ports 100M",-,-,Klaseman,IT Support,Baik,-,-,HUB,-,-,-
+Box_Panel-MHub,"TP Link, TL-SF1016D, 16 Ports 100M",-,-,Ruko,IT Support,Baik,-,-,Main Hub,-,-,-
+CS-Hub,"Dlink, DES-1008A, 8 ports 100M",-,-,Ruko,IT Support,Baik,-,-,HUB,-,-,-
+Warehouse_Hub,"DLink, DES 1008A, 8 Ports 100M",-,-,Gito-Gati,IT Support,Baik,-,-,HUB,-,-,-
+QC_Hub,"Dlink, DGS-108, 8 Ports 1G",-,-,Gito-Gati,IT Support,Baik,-,-,HUB,-,-,-
+BoxPanel_MHub,"Dlink, DGS-108, 8 Ports 1G",-,-,Gito-Gati,IT Support,Baik,-,-,Main Hub,-,-,-
+Gito_Ext,"TPLink, WR850RE",-,-,Gito-Gati,IT Support,Baik,-,-,WiFi Extender,192.168.60.61,76:DA:88:90:C5:5E,-
+unifi_gitogati,"Unifi, AP-AC LR",-,-,Gito-Gati,IT Support,Baik,-,-,AccessPoint WiFi,192.168.60.60,FC:EC:DA:86:46:32,4.0.69.10871
+unifi_klaseman1,"Unifi, AP-AC LR",-,-,Klaseman,IT Support,Baik,-,-,AccessPoint WiFi,192.168.20.2,FC:EC:DA:86:4B:60,4.0.69.10871
+unifi_klaseman2,"Unifi, AP-AC LR",-,-,Klaseman,IT Support,Baik,-,-,AccessPoint WiFi,192.168.20.3,-,
+AP2_Ruko,"TPLink, TL-WA901ND V5",-,-,Ruko,IT Support,Baik,-,-,AccessPoint WiFi,192.168.40.40,50:C7:BF:62:FF:84,3.16.9 Build 160929 Rel.37753n
+AP1_Ruko,"TP Link,",-,-,Ruko,IT Support,Baik,-,-,AccessPoint WiFi,192.168.30.xx,-,
+AirGrid M5 HP,AirGrid M5 HP,-,-,Klaseman,IT Support,Baik,-,-,Standby,-,-,XW.v5.5.9
+AirGrid M5 HP,AirGrid M5 HP,-,-,Klaseman,IT Support,Baik,-,-,Standby,-,-,XW.v5.5.9
+AirGrid M5 HP,AirGrid M5 HP,-,-,Klaseman,IT Support,Baik,-,-,Standby,-,-,XW.v5.5.9
+"TP Link, TL SF 1016D","TP Link, TL SF 1016D, 16 Ports 100M",-,-,Klaseman,IT Support,Baik,-,-,Main HuB,-,-,-
+TPLink WR850RE,"TPLink, WR850RE",-,-,Klaseman,IT Support,Baik,-,-,WiFi Extender,-,76:DA:88:90:CB:88,-

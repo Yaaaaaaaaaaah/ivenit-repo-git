@@ -1,0 +1,68 @@
+<nav class="sidebar d-flex flex-column">
+    <div class="sidebar-header">
+        <a href="/" class="navbar-brand text-decoration-none text-white">
+            <i class="bi bi-box-seam-fill me-2 align-middle"></i>
+            <span class="align-middle fw-semibold">Inventaris IT</span>
+        </a>
+    </div>
+
+    <div class="sidebar-body">
+        <ul class="nav flex-column nav-pills">
+            
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof title !== 'undefined' && (title === 'Daftar Aset IT' || title === 'Dashboard Aset')) ? 'active' : '' %>" href="/">
+                    <i class="bi bi-grid-1x2-fill me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof title !== 'undefined' && (title.startsWith('Tambah Aset') || title.startsWith('Edit Aset'))) ? 'active' : '' %>" href="/items/create">
+                    <i class="bi bi-plus-square-fill me-2"></i> Tambah Aset
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof title !== 'undefined' && title === 'Manajemen Peminjaman Aset') ? 'active' : '' %>" href="/loans">
+                    <i class="bi bi-arrow-left-right me-2"></i> Peminjaman
+                </a>
+            </li>
+
+            <%
+              const isReportActive = typeof title !== 'undefined' && (
+                title === 'Laporan Aset' ||
+                title === 'Laporan Maintenance Bulanan'
+              );
+            %>
+            <li class="nav-item">
+                <a class="nav-link dropdown-toggle <%= isReportActive ? 'active' : '' %>"
+                   href="#" data-bs-toggle="collapse" data-bs-target="#reportSubmenu"
+                   aria-expanded="<%= isReportActive ? 'true' : 'false' %>">
+                    <i class="bi bi-file-earmark-bar-graph-fill me-2"></i> Laporan
+                </a>
+                <div class="collapse <%= isReportActive ? 'show' : '' %>" id="reportSubmenu">
+                    <ul class="nav flex-column mt-1 ps-3">
+                        <li class="nav-item"><a class="nav-link py-1 <%= (typeof title !== 'undefined' && title === 'Laporan Aset') ? 'active' : '' %>" href="/reports"><i class="bi bi-dot"></i> Laporan Aset</a></li>
+                        <li class="nav-item"><a class="nav-link py-1 <%= (typeof title !== 'undefined' && title === 'Laporan Maintenance Bulanan') ? 'active' : '' %>" href="/reports/maintenance"><i class="bi bi-dot"></i> Laporan Maintenance</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof title !== 'undefined' && title === 'Pengukur Nilai Depresiasi') ? 'active' : '' %>" href="/tools/depreciation-meter">
+                    <i class="bi bi-speedometer2 me-2"></i> Pengukur Depresiasi
+                </a>
+            </li>
+
+            <% if (typeof session !== 'undefined' && session.userRole === 'Admin') { %>
+                <li class="nav-item">
+                    <a class="nav-link <%= (typeof title !== 'undefined' && title === 'Manajemen Pengguna') ? 'active' : '' %>" href="/admin/users">
+                        <i class="bi bi-people-fill me-2"></i> User Management
+                    </a>
+                </li>
+                 <% /* ===== LINK MANAJEMEN KATEGORI SUDAH DIHAPUS ===== */ %>
+            <% } %>
+        </ul>
+    </div>
+
+    <div class="sidebar-footer">
+        <span class="small">&copy; <%= new Date().getFullYear() %> IvenIT</span>
+    </div>
+</nav>

@@ -1,0 +1,200 @@
+<%- include('../../partials/header', { title: title }) %>
+
+<div class="card shadow-sm">
+    <div class="card-header py-3 bg-light">
+        <h5 class="mb-0 fw-semibold text-primary"><i class="bi bi-speedometer2 me-2"></i><%= title %></h5>
+    </div>
+    <div class="card-body p-4">
+
+        <div class="row g-3 align-items-end mb-4 pb-4 border-bottom">
+            <div class="col-md-6">
+                <label for="itemSelect" class="form-label fw-medium">Pilih Aset:</label>
+                <select id="itemSelect" class="form-select form-select-sm">
+                    <option value="">-- Pilih Aset --</option>
+                    <% if (items && items.length > 0) { %>
+                        <% items.forEach(item => { %>
+                            <%# Simpan data PIC/Dept/Lokasi di atribut data-* %>
+                            <option value="<%= item.id %>"
+                                    data-pic="<%= item.pic_name %>"
+                                    data-category="<%= item.category ? item.category.name : '' %>"
+                                    data-location="<%= item.location ? item.location.name : '' %>"
+                                    data-department="<%= item.department ? item.department.name : '' %>">
+                                <%= item.name %>
+                                <% if (item.host_pc_name) { %> / <%= item.host_pc_name %> <% } %>
+                                <% if (item.no_inventaris) { %> (<%= item.no_inventaris %>) <% } %>
+                            </option>
+                        <% }) %>
+                    <% } %>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="purchasePriceInput" class="form-label fw-medium">Harga Beli (Rp):</label>
+                <input type="number" id="purchasePriceInput" class="form-control form-control-sm" placeholder="Contoh: 15000000" disabled>
+            </div>
+            <div class="col-md-3">
+                <button id="calculateButton" class="btn btn-primary w-100 btn-sm" disabled>
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <i class="bi bi-calculator me-1"></i> Hitung
+                </button>
+            </div>
+        </div>
+
+        <div id="assetInfoArea" class="mb-4 small" style="display: none;">
+             <h6 class="fw-semibold mb-2">Informasi Aset Terpilih:</h6>
+             <div class="row g-2">
+                 <div class="col-md-6"><strong>PIC / Pengguna:</strong> <span id="infoPic">-</span></div>
+                 <div class="col-md-6" id="infoLocationDeptContainer"><strong><span id="infoLocationDeptLabel">Lokasi/Dept:</span></strong> <span id="infoLocationDept">-</span></div>
+             </div>
+        </div>
+
+
+        <div id="resultArea" class="mt-4" style="min-height: 150px;">
+            <p class="text-muted text-center fst-italic">Pilih aset dan masukkan harga beli untuk menghitung depresiasi.</p>
+        </div>
+
+    </div> </div> <%- include('../../partials/footer') %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const itemSelect = document.getElementById('itemSelect');
+    const priceInput = document.getElementById('purchasePriceInput');
+    const calculateButton = document.getElementById('calculateButton');
+    const resultArea = document.getElementById('resultArea');
+    const assetInfoArea = document.getElementById('assetInfoArea');
+    const infoPic = document.getElementById('infoPic');
+    const infoLocationDeptContainer = document.getElementById('infoLocationDeptContainer');
+    const infoLocationDeptLabel = document.getElementById('infoLocationDeptLabel');
+    const infoLocationDept = document.getElementById('infoLocationDept');
+    const spinner = calculateButton.querySelector('.spinner-border');
+
+    let selectedItemData = null; 
+
+    function checkEnableButton() {
+        const itemId = itemSelect.value;
+        const price = priceInput.value;
+        calculateButton.disabled = !itemId || !price || parseFloat(price) <= 0;
+    }
+
+    itemSelect.addEventListener('change', function() {
+        priceInput.disabled = !this.value; 
+        resultArea.innerHTML = '<p class="text-muted text-center fst-italic">Masukkan harga beli untuk menghitung.</p>'; 
+        assetInfoArea.style.display = 'none'; 
+        selectedItemData = null; 
+
+        if (this.value) {
+            const selectedOption = this.options[this.selectedIndex];
+            selectedItemData = selectedOption.dataset; 
+
+            infoPic.textContent = selectedItemData.pic || '-';
+            const category = selectedItemData.category;
+            const location = selectedItemData.location;
+            const department = selectedItemData.department;
+
+            if (category === 'Laptop/PC') {
+                infoLocationDeptLabel.textContent = 'Departemen:';
+                infoLocationDept.textContent = department || '-';
+                infoLocationDeptContainer.style.display = department ? 'block' : 'none';
+            } else {
+                infoLocationDeptLabel.textContent = 'Lokasi:';
+                infoLocationDept.textContent = location || '-';
+                infoLocationDeptContainer.style.display = location ? 'block' : 'none';
+            }
+            assetInfoArea.style.display = 'block'; 
+        }
+        checkEnableButton(); 
+    });
+
+    priceInput.addEventListener('input', checkEnableButton);
+
+    function showLoading(isLoading) {
+        if (isLoading) {
+            spinner.classList.remove('d-none');
+            calculateButton.disabled = true;
+            resultArea.innerHTML = '<div class="text-center my-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-muted">Menghitung...</p></div>';
+        } else {
+            spinner.classList.add('d-none');
+            checkEnableButton(); 
+        }
+    }
+
+    function showError(message) {
+         resultArea.innerHTML = `<div class="alert alert-danger" role="alert">${message || 'Terjadi kesalahan.'}</div>`;
+    }
+
+    function renderSchedule(schedule) {
+         if (!schedule || schedule.length === 0) {
+             resultArea.innerHTML = `<div class="alert alert-warning">Tidak ada data depresiasi untuk ditampilkan. Periksa aturan kategori atau input harga.</div>`;
+             return;
+         }
+
+         let tableHTML = `
+             <h6 class="fw-semibold">Jadwal Depresiasi (Metode Garis Lurus)</h6>
+             <div class="table-responsive small">
+                <table class="table table-bordered table-striped table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tahun</th>
+                            <th>Nilai Buku Awal</th>
+                            <th>Beban Depresiasi</th>
+                            <th>Akum. Depresiasi</th>
+                            <th>Nilai Buku Akhir</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+        schedule.forEach(row => {
+            tableHTML += `
+                        <tr>
+                            <td>${row.year}</td>
+                            <td>Rp ${row.beginningBookValue.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td>Rp ${row.depreciationExpense.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td>Rp ${row.accumulatedDepreciation.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            <td>Rp ${row.endingBookValue.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        </tr>`;
+        });
+
+        tableHTML += `</tbody></table></div>`;
+        resultArea.innerHTML = tableHTML;
+    }
+
+    calculateButton.addEventListener('click', async function() {
+        const selectedItemId = itemSelect.value;
+        const purchasePriceValue = priceInput.value;
+
+        if (!selectedItemId || !purchasePriceValue || parseFloat(purchasePriceValue) <= 0) {
+             showError('Pilih aset dan masukkan harga beli yang valid.');
+             return;
+        }
+
+        showLoading(true); 
+
+        const dataToSend = {
+            itemId: selectedItemId,
+            purchasePrice: purchasePriceValue
+        };
+
+        try {
+            const response = await fetch('/api/calculate-simple-depreciation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataToSend)
+            });
+
+            if (!response.ok) {
+                 const errorData = await response.json();
+                 throw new Error(errorData.error || `Gagal menghitung (HTTP ${response.status})`);
+            }
+
+            const result = await response.json();
+            renderSchedule(result.schedule); 
+
+        } catch (error) {
+            console.error('Error calculating depreciation:', error);
+            showError(`Gagal menghitung depresiasi: ${error.message}.`);
+        } finally {
+            showLoading(false); 
+        }
+    });
+
+});
+</script>

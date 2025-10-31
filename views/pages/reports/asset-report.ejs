@@ -1,0 +1,105 @@
+<%- include('../../partials/header', { title: 'Laporan Aset' }) %>
+
+<div class="alert alert-primary d-flex align-items-center alert-dismissible fade show small rounded-pill px-3 py-2" role="alert"> <i class="bi bi-info-circle-fill me-2"></i>
+  <div>
+    Pilih filter **Departemen** (Laporan PC/Laptop) atau **Lokasi** (Laporan Non-PC).
+  </div>
+   <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button> </div>
+
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary-subtle text-primary py-2">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-building me-1"></i>Laporan PC per Departemen</h6>
+            </div>
+            <div class="card-body py-3">
+                <form action="/reports" method="GET">
+                    <div class="input-group input-group-sm">
+                         <label class="input-group-text" for="department_id"><i class="bi bi-filter-left"></i></label>
+                        <select name="department_id" id="department_id" class="form-select" required onchange="this.form.submit()">
+                            <option value="">-- Pilih Departemen --</option>
+                            <% departments.forEach(d => { %>
+                                <option value="<%= d.id %>" <%= selectedDepartmentId == d.id ? 'selected' : '' %>><%= d.name %></option>
+                            <% }) %>
+                        </select>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+                    </div>
+                    <input type="hidden" name="location_id" value="">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary-subtle text-primary py-2">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-geo-alt-fill me-1"></i>Laporan Non-PC per Lokasi</h6>
+            </div>
+            <div class="card-body py-3">
+                <form action="/reports" method="GET">
+                    <div class="input-group input-group-sm">
+                         <label class="input-group-text" for="location_id"><i class="bi bi-filter-right"></i></label>
+                        <select name="location_id" id="location_id" class="form-select" required onchange="this.form.submit()">
+                            <option value="">-- Pilih Lokasi --</option>
+                            <% locations.forEach(l => { %>
+                                <option value="<%= l.id %>" <%= selectedLocationId == l.id ? 'selected' : '' %>><%= l.name %></option>
+                            <% }) %>
+                        </select>
+                         <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+                    </div>
+                    <input type="hidden" name="department_id" value="">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 text-primary"><i class="bi bi-clipboard-data-fill me-2"></i>Hasil Laporan <% if (reportTitle) { %> - <span class="fw-normal"><%= reportTitle %></span><% } %></h5>
+        <% if (items && items.length > 0) { %>
+            <button class="btn btn-sm btn-outline-success disabled rounded-pill"><i class="bi bi-file-earmark-excel-fill me-1"></i> Export (Soon)</button>
+        <% } %>
+    </div>
+    <div class="card-body p-0">
+        <% if (items && items.length > 0 && reportType === 'department') { %>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-sm mb-0 small">
+                    <thead class="table-light">
+                        <tr> <th class="ps-3">Host/PC Name</th> <th>PIC</th> <th>AnyDesk ID</th> <th>IP Address</th> <th>OS</th> <th>Office</th> </tr>
+                    </thead>
+                    <tbody>
+                        <% items.forEach(item => { const getSpec = (key) => (item.specifications.find(s => s.spec_key === key) || {}).spec_value || '-'; %>
+                            <tr> <td class="ps-3"><%= item.host_pc_name || '-' %></td> <td><%= item.pic_name %></td> <td><%= getSpec('AnyDesk ID') %></td> <td><%= getSpec('IP Address') %></td> <td><%= getSpec('Operating System') %></td> <td><%= getSpec('Ms. Office') %></td> </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else if (items && items.length > 0 && reportType === 'location') { %>
+             <div class="table-responsive">
+                <table class="table table-striped table-hover table-sm mb-0 small">
+                    <thead class="table-light">
+                        <tr> <th class="ps-3">Nama Perangkat</th> <th>Model</th> <th>Kategori</th> <th>PIC</th> </tr>
+                    </thead>
+                    <tbody>
+                        <% items.forEach(item => { %>
+                            <tr> <td class="ps-3"><%= item.name %></td> <td><%= item.model || '-' %></td> <td><span class="badge text-bg-secondary rounded-pill fw-normal"><%= item.category.name %></span></td> <td><%= item.pic_name %></td> </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else if (reportType) { %>
+            <div class="text-center text-muted py-5 fst-italic small">Tidak ada data untuk "<%= reportTitle %>".</div>
+        <% } else { %>
+            <div class="text-center text-muted py-5 fst-italic small">Pilih filter untuk menampilkan laporan.</div>
+        <% } %>
+    </div>
+     <% if (items && items.length > 0) { %>
+     <div class="card-footer bg-light text-muted small border-top py-2">
+        Menampilkan <%= items.length %> data.
+     </div>
+     <% } %>
+</div>
+
+<%- include('../../partials/footer') %>
