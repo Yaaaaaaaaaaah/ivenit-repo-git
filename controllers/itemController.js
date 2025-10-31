@@ -5,6 +5,7 @@ const { Op } = require('sequelize');
 const qrcode = require('qrcode');
 // const cloudinary = require('cloudinary').v2; // (Simpan ini untuk nanti jika butuh hapus gambar)
 
+// ===== FUNGSI LIST (DASHBOARD) =====
 exports.list = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -101,6 +102,7 @@ exports.list = async (req, res) => {
 };
 
 
+// ===== FUNGSI SHOW (DETAIL) =====
 exports.show = async (req, res) => {
     try {
         const item = await Item.findByPk(req.params.id, {
@@ -125,6 +127,7 @@ exports.show = async (req, res) => {
     }
 };
 
+// ===== FUNGSI SHOWCREATEFORM (TAMBAH) =====
 exports.showCreateForm = async (req, res) => {
     try {
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
@@ -132,7 +135,7 @@ exports.showCreateForm = async (req, res) => {
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
         res.render('pages/items/form', {
             title: 'Tambah Aset Baru',
-            item: null,
+            item: null, // item-nya null untuk form baru
             categories,
             locations,
             departments
@@ -142,6 +145,7 @@ exports.showCreateForm = async (req, res) => {
     }
 };
 
+// ===== FUNGSI CREATE (SIMPAN BARU) - CLOUDINARY =====
 exports.create = async (req, res) => {
     const t = await sequelize.transaction();
     try {
@@ -189,20 +193,22 @@ exports.create = async (req, res) => {
 
     } catch (error) { 
         await t.rollback();
+        // ===== PERBAIKAN DI SINI (untuk error 'categories is not defined') =====
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const locations = await Location.findAll({ order: [['name', 'ASC']] });
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
         res.render('pages/items/form', {
             title: 'Tambah Aset Baru',
-            item: req.body,
-            categories,
-            locations,
-            departments,
+            item: req.body, // Kirim data yang sudah diisi user kembali
+            categories, // Kirim categories
+            locations, // Kirim locations
+            departments, // Kirim departments
             errorMessage: error.message
         });
     }
 };
 
+// ===== FUNGSI SHOWEDITFORM (EDIT) =====
 exports.showEditForm = async (req, res) => {
     try {
         const item = await Item.findByPk(req.params.id, {
@@ -224,7 +230,8 @@ exports.showEditForm = async (req, res) => {
 
         res.render('pages/items/form', {
             title: `Edit Aset: ${item.name}`,
-            item: { ...item.get(), ...itemSpecs },
+            // ===== PERBAIKAN DI SINI (untuk error 'item.get is not a function') =====
+            item: { ...item.toJSON(), ...itemSpecs }, // Gunakan .toJSON() bukan .get()
             categories,
             locations,
             departments
@@ -234,6 +241,7 @@ exports.showEditForm = async (req, res) => {
     }
 };
 
+// ===== FUNGSI UPDATE (SIMPAN EDIT) - CLOUDINARY =====
 exports.update = async (req, res) => {
     const t = await sequelize.transaction();
     const itemId = req.params.id;
@@ -266,7 +274,7 @@ exports.update = async (req, res) => {
             purchase_date: purchase_date || null,
             condition, pic_name, notes: notes || null,
             categoryId, locationId: locationId || null, departmentId: departmentId || null,
-            image_url: imageUrl 
+            image_url: imageUrl // Typo 's' sudah dihapus
         }, { transaction: t });
 
         await ItemSpecification.destroy({ where: { itemId: itemId } }, { transaction: t });
@@ -289,26 +297,29 @@ exports.update = async (req, res) => {
 
     } catch (error) { 
         await t.rollback(); 
+        // ===== PERBAIKAN DI SINI (untuk error saat update gagal) =====
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const locations = await Location.findAll({ order: [['name', 'ASC']] });
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
-        req.body.id = itemId;
+        req.body.id = itemId; // Pastikan ID tetap ada
         res.render('pages/items/form', {
             title: `Edit Aset`,
-            item: req.body,
-            categories,
-            locations,
-            departments,
+            item: req.body, // Kirim data yang gagal disimpan
+            categories, // Kirim categories
+            locations, // Kirim locations
+            departments, // Kirim departments
             errorMessage: error.message
         });
     } 
 }; 
 
 
+// ===== FUNGSI DELETE & QRCODE =====
 exports.delete = async (req, res) => {
     try {
         const itemToDelete = await Item.findByPk(req.params.id);
         if (itemToDelete && itemToDelete.image_url) {
+            // TODO: Hapus gambar dari Cloudinary
         }
 
         await Item.destroy({ where: { id: req.params.id } });
