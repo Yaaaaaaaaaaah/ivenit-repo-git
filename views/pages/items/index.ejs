@@ -1,240 +1,254 @@
 <%- include('../../partials/header', { title: 'Dashboard Aset' }) %>
 
-<%# --- KOTAK STATISTIK (WARNA DIPERBAIKI) --- %>
+<%# ============================================================= %>
+<%# --- KOTAK STATISTIK --- %>
+<%# ============================================================= %>
 <div class="row g-3 mb-4">
-    <%# Kotak Total Aset %>
-    <div class="col-xl-3 col-md-6">
-        <div class="card shadow-sm border-start border-primary border-4 h-100">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col">
-                        <div class="text-xs fw-bold text-primary text-uppercase mb-1">Total Aset</div>
-                        <div class="h5 mb-0 fw-bold text-primary"><%= totalItemsAbsolute %></div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="bi bi-box-seam-fill h2 text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-            <a href="#assetTable" class="card-footer py-1 text-primary small text-decoration-none">
-                Lihat detail <i class="bi bi-arrow-right-circle-fill"></i>
-            </a>
+  <%# Kotak Total Aset %>
+  <div class="col-xl-3 col-md-6">
+    <div class="card shadow-sm border-start border-primary border-4 h-100">
+      <div class="card-body">
+        <div class="row g-0 align-items-center">
+          <div class="col">
+            <div class="text-xs fw-bold text-primary text-uppercase mb-1">Total Aset</div>
+            <div class="h5 mb-0 fw-bold text-primary"><%= totalItemsAbsolute %></div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-box-seam-fill h2 text-gray-300"></i>
+          </div>
         </div>
+      </div>
+      <a href="#assetTable" class="card-footer py-1 text-primary small text-decoration-none">
+        Lihat detail <i class="bi bi-arrow-right-circle-fill"></i>
+      </a>
     </div>
+  </div>
 
-    <%# Kotak Aset Tersedia %>
-    <div class="col-xl-3 col-md-6">
-        <div class="card shadow-sm border-start border-success border-4 h-100">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col">
-                        <div class="text-xs fw-bold text-success text-uppercase mb-1">Tersedia</div>
-                        <div class="h5 mb-0 fw-bold text-success"><%= (stats && stats.statusCounts.Tersedia) ? stats.statusCounts.Tersedia : 0 %></div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="bi bi-check-circle-fill h2 text-gray-300"></i>
-                    </div>
-                </div>
+  <%# Kotak Aset Tersedia %>
+  <div class="col-xl-3 col-md-6">
+    <div class="card shadow-sm border-start border-success border-4 h-100">
+      <div class="card-body">
+        <div class="row g-0 align-items-center">
+          <div class="col">
+            <div class="text-xs fw-bold text-success text-uppercase mb-1">Tersedia</div>
+            <div class="h5 mb-0 fw-bold text-success">
+              <%= (stats && stats.statusCounts.Tersedia) ? stats.statusCounts.Tersedia : 0 %>
             </div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-check-circle-fill h2 text-gray-300"></i>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <%# Kotak Aset Dipinjam %>
-    <div class="col-xl-3 col-md-6">
-        <div class="card shadow-sm border-start border-warning border-4 h-100">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col">
-                        <div class="text-xs fw-bold text-warning text-uppercase mb-1">Dipinjam</div>
-                        <div class="h5 mb-0 fw-bold text-warning"><%= (stats && stats.statusCounts.Dipinjam) ? stats.statusCounts.Dipinjam : 0 %></div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="bi bi-arrow-left-right h2 text-gray-300"></i>
-                    </div>
-                </div>
+  <%# Kotak Aset Dipinjam %>
+  <div class="col-xl-3 col-md-6">
+    <div class="card shadow-sm border-start border-warning border-4 h-100">
+      <div class="card-body">
+        <div class="row g-0 align-items-center">
+          <div class="col">
+            <div class="text-xs fw-bold text-warning text-uppercase mb-1">Dipinjam</div>
+            <div class="h5 mb-0 fw-bold text-warning">
+              <%= (stats && stats.statusCounts.Dipinjam) ? stats.statusCounts.Dipinjam : 0 %>
             </div>
-            <a href="/loans" class="card-footer py-1 text-warning small text-decoration-none">
-                Lihat Peminjaman <i class="bi bi-arrow-right-circle-fill"></i>
-            </a>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-arrow-left-right h2 text-gray-300"></i>
+          </div>
         </div>
+      </div>
+      <a href="/loans" class="card-footer py-1 text-warning small text-decoration-none">
+        Lihat Peminjaman <i class="bi bi-arrow-right-circle-fill"></i>
+      </a>
     </div>
-    <%# Kotak Aset Perbaikan %>
-    <div class="col-xl-3 col-md-6">
-        <div class="card shadow-sm border-start border-danger border-4 h-100">
-            <div class="card-body">
-                <div class="row g-0 align-items-center">
-                    <div class="col">
-                        <div class="text-xs fw-bold text-danger text-uppercase mb-1">Perbaikan</div>
-                        <div class="h5 mb-0 fw-bold text-danger"><%= (stats && stats.statusCounts.Perbaikan) ? stats.statusCounts.Perbaikan : 0 %></div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="bi bi-tools h2 text-gray-300"></i>
-                    </div>
-                </div>
+  </div>
+
+  <%# Kotak Aset Perbaikan %>
+  <div class="col-xl-3 col-md-6">
+    <div class="card shadow-sm border-start border-danger border-4 h-100">
+      <div class="card-body">
+        <div class="row g-0 align-items-center">
+          <div class="col">
+            <div class="text-xs fw-bold text-danger text-uppercase mb-1">Perbaikan</div>
+            <div class="h5 mb-0 fw-bold text-danger">
+              <%= (stats && stats.statusCounts.Perbaikan) ? stats.statusCounts.Perbaikan : 0 %>
             </div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-tools h2 text-gray-300"></i>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
-<%# --- AKHIR KOTAK STATISTIK --- %>
-<%# --- GRAFIK RINGKASAN & WIDGET BARU --- %>
+
+<%# ============================================================= %>
+<%# --- GRAFIK & WIDGET MAINTENANCE --- %>
+<%# ============================================================= %>
 <div class="row g-4 mb-4">
-    <div class="col-lg-7">
-        <div class="card shadow-sm h-100">
-            <div class="card-header py-3">
-                <h6 class="mb-0 fw-semibold text-primary"><i class="bi bi-pie-chart-fill me-1"></i> Ringkasan Aset per Kategori</h6>
-            </div>
-            <div class="card-body d-flex align-items-center justify-content-center">
-                <% if (stats && stats.categoryCounts && Object.keys(stats.categoryCounts).length > 0) { %>
-                    <div style="width: 100%; max-width: 400px; height: 300px;"><canvas id="categoryChartCanvas"></canvas></div>
-                <% } else { %>
-                    <p class="text-muted fst-italic">Data kategori tidak ditemukan.</p>
-                <% } %>
-            </div>
-        </div>
+  <div class="col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-header py-3">
+        <h6 class="mb-0 fw-semibold text-primary">
+          <i class="bi bi-pie-chart-fill me-1"></i> Ringkasan Aset per Kategori
+        </h6>
+      </div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <% if (stats && stats.categoryCounts && Object.keys(stats.categoryCounts).length > 0) { %>
+          <div style="width: 100%; max-width: 400px; height: 300px;">
+            <canvas id="categoryChartCanvas"></canvas>
+          </div>
+        <% } else { %>
+          <p class="text-muted fst-italic">Data kategori tidak ditemukan.</p>
+        <% } %>
+      </div>
     </div>
-    
-    <%# WIDGET MAINTENANCE %>
-    <div class="col-lg-5">
-        <div class="card shadow-sm h-100">
-            <div class="card-header py-3">
-                <h6 class="mb-0 fw-semibold text-primary"><i class="bi bi-wrench-adjustable-circle-fill me-1"></i> Maintenance Bulan Ini</h6>
-            </div>
-            <div class="card-body p-3 small">
-                <% if (typeof recentMaintenances !== 'undefined' && recentMaintenances && recentMaintenances.length > 0) { %>
-                    <ul class="list-group list-group-flush">
-                        <% recentMaintenances.forEach(log => { %>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-1 py-2">
-                                <div>
-                                    <% if(log.item) { %>
-                                        <a href="/items/<%= log.item.id %>" class="text-decoration-none fw-medium"><%= log.item.name %></a>
-                                    <% } else { %>
-                                        <span class="fw-medium text-muted">Aset Dihapus</span>
-                                    <% } %>
-                                    <small class="d-block text-muted" title="<%= log.description %>">
-                                        <%= log.description.substring(0, 50) %><% if(log.description.length > 50) { %>...<% } %>
-                                    </small>
-                                </div>
-                                <span class="badge text-bg-light fw-normal"><%= new Date(log.activity_date).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) %></span>
-                            </li>
-                        <% }) %>
-                    </ul>
-                <% } else { %>
-                    <p class="text-muted fst-italic text-center m-0 pt-3">Belum ada aktivitas maintenance bulan ini.</p>
-                <% } %>
-            </div>
-            <a href="/reports/maintenance" class="card-footer text-center py-2 text-decoration-none small">
-                Lihat Semua Laporan Maintenance
-            </a>
-        </div>
+  </div>
+
+  <%# WIDGET MAINTENANCE BULAN INI %>
+  <div class="col-lg-5">
+    <div class="card shadow-sm h-100">
+      <div class="card-header py-3">
+        <h6 class="mb-0 fw-semibold text-primary">
+          <i class="bi bi-wrench-adjustable-circle-fill me-1"></i> Maintenance Bulan Ini
+        </h6>
+      </div>
+      <div class="card-body p-3 small">
+        <% if (recentMaintenances && recentMaintenances.length > 0) { %>
+          <ul class="list-group list-group-flush">
+            <% recentMaintenances.forEach(log => { %>
+              <li class="list-group-item d-flex justify-content-between align-items-center px-1 py-2">
+                <div>
+                  <% if (log.item) { %>
+                    <a href="/items/<%= log.item.id %>" class="text-decoration-none fw-medium"><%= log.item.name %></a>
+                  <% } else { %>
+                    <span class="fw-medium text-muted">Aset Dihapus</span>
+                  <% } %>
+                  <small class="d-block text-muted" title="<%= log.description %>">
+                    <%= log.description.substring(0, 50) %><% if (log.description.length > 50) { %>...<% } %>
+                  </small>
+                </div>
+                <span class="badge text-bg-light fw-normal">
+                  <%= new Date(log.activity_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) %>
+                </span>
+              </li>
+            <% }) %>
+          </ul>
+        <% } else { %>
+          <p class="text-muted fst-italic text-center m-0 pt-3">Belum ada aktivitas maintenance bulan ini.</p>
+        <% } %>
+      </div>
+      <a href="/reports/maintenance" class="card-footer text-center py-2 text-decoration-none small">
+        Lihat Semua Laporan Maintenance
+      </a>
     </div>
+  </div>
 </div>
 
-<%# --- TABEL DAFTAR ASET --- %>
+<%# ============================================================= %>
+<%# --- TABEL DAFTAR ASET (DENGAN PERBAIKAN GAMBAR CLOUDINARY) --- %>
+<%# ============================================================= %>
 <div class="card shadow-sm" id="assetTable">
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="mb-0 fw-semibold text-primary"><i class="bi bi-list-task me-1"></i> Daftar Aset (<%= totalItems %> Aset Ditemukan)</h6>
-        <a href="/items/create" class="btn btn-primary btn-sm rounded-pill"><i class="bi bi-plus-lg me-1"></i>Tambah Aset Baru</a>
-    </div>
-    <div class="card-body p-0">
-        <div class="p-3 bg-light-subtle border-bottom">
-            <form action="/" method="GET" class="row g-2 align-items-center">
-                <div class="col-md-6 col-lg-7"><div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light border-0 text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" name="search" class="form-control" placeholder="Cari Nama Aset, Host PC, No. Inventaris, S/N..." value="<%= search || '' %>">
-                </div></div>
-                <div class="col-md-3 col-lg-3"><select name="categoryId" class="form-select form-select-sm">
-                    <option value="">Semua Kategori</option>
-                    <% categories.forEach(cat => { %><option value="<%= cat.id %>" <%= categoryId == cat.id ? 'selected' : '' %>><%= cat.name %></option><% }) %>
-                </select></div>
-                <div class="col-md-3 col-lg-2"><button type="submit" class="btn btn-secondary btn-sm w-100">Filter</button></div>
-            </form>
-        </div>
-        <div class="table-responsive small">
-            <table class="table table-hover table-striped mb-0 align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col" class="text-center" style="width: 40px;">No</th>
-                        <th scope="col">Nama Aset / Host PC</th>
-                        <th scope="col">Kategori</th>
-                        <th scope="col">PIC / Dept / Lokasi</th>
-                        <th scope="col">Kondisi</th>
-                        <th scope="col">Status</th>
-                        <th scope="col" class="text-center" style="width: 120px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if(items && items.length > 0) { %>
-                        <% items.forEach((item, index) => { %>
-                            <tr>
-                                <td class="text-center text-muted"><%= offset + index + 1 %></td>
-                                <td><a href="/items/<%= item.id %>" class="text-decoration-none fw-medium"><%= item.name %></a><small class="d-block text-muted"><%= item.host_pc_name || item.model || '' %></small></td>
-                                <td><span class="badge rounded-pill text-bg-light fw-normal"><%= item.category ? item.category.name : 'N/A' %></span></td>
-                                <td><span class="fw-medium"><%= item.pic_name %></span><small class="d-block text-muted"><% if(item.category && item.category.name === 'Laptop/PC') { %><%= item.department ? item.department.name : 'N/A' %><% } else { %><%= item.location ? item.location.name : 'N/A' %><% } %></small></td>
-                                <td>
-                                    <% if(item.condition === 'Baik') { %><span class="badge text-bg-success fw-normal"><i class="bi bi-check-circle me-1"></i> <%= item.condition %></span><% } else if(item.condition === 'Rusak Ringan' || item.condition === 'Rusak') { %><span class="badge text-bg-warning fw-normal"><i class="bi bi-exclamation-triangle me-1"></i> <%= item.condition %></span><% } else { %><span class="badge text-bg-secondary fw-normal"><%= item.condition %></span><% } %>
-                                </td>
-                                <td>
-                                    <% if(item.availability_status === 'Tersedia') { %><span class="badge text-bg-success-subtle text-success-emphasis fw-normal"><%= item.availability_status %></span><% } else if(item.availability_status === 'Dipinjam') { %><span class="badge text-bg-warning-subtle text-warning-emphasis fw-normal"><%= item.availability_status %></span><% } else { %><span class="badge text-bg-danger-subtle text-danger-emphasis fw-normal"><%= item.availability_status %></span><% } %>
-                                </td>
-                                <td class="text-center">
-                                    <%# Baris 1 %>
-                                    <div class="mb-1">
-                                        <a href="/items/<%= item.id %>" class="btn btn-outline-primary btn-sm py-0 px-1 me-1" title="Lihat Detail"><i class="bi bi-eye-fill"></i></a>
-                                        <button class="btn btn-outline-dark btn-sm py-0 px-1" title="Generate QR Code"
-                                            data-bs-toggle="modal" data-bs-target="#qrCodeModal"
-                                            data-item-id="<%= item.id %>" data-item-name="<%= item.name %>">
-                                            <i class="bi bi-qr-code"></i>
-                                        </button>
-                                    </div>
-                                    <%# Baris 2 %>
-                                    <div>
-                                        <a href="/items/<%= item.id %>/edit" class="btn btn-outline-warning btn-sm py-0 px-1 me-1" title="Edit Aset"><i class="bi bi-pencil-fill"></i></a>
-                                        <form action="/items/<%= item.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus aset <%= item.name %>? Tindakan ini tidak dapat dibatalkan.');">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="Hapus">
-                                                <i class="bi bi-trash-fill"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    <% } else { %>
-                        <tr><td colspan="7" class="text-center text-muted fst-italic py-4">Belum ada data aset. <a href="/items/create" class="text-decoration-none">Tambah Aset Baru</a></td></tr>
-                    <% } %>
-                </tbody>
-            </table>
-        </div>
-        <div class="card-footer d-flex justify-content-between align-items-center small">
-            <div class="text-muted">Menampilkan <%= items.length %> dari <%= totalItems %> total aset ditemukan.</div>
-            <% if (totalPages > 1) { %>
-                <nav aria-label="Page navigation"><ul class="pagination pagination-sm mb-0">
-                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>"><a class="page-link" href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&categoryId=<%= categoryId || '' %>&search=<%= search || '' %>">Prev</a></li>
-                    <% for(let i = 1; i <= totalPages; i++) { %><li class="page-item <%= i === currentPage ? 'active' : '' %>"><a class="page-link" href="?page=<%= i %>&limit=<%= limit %>&categoryId=<%= categoryId || '' %>&search=<%= search || '' %>"><%= i %></a></li><% } %>
-                    <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>"><a class="page-link" href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&categoryId=<%= categoryId || '' %>&search=<%= search || '' %>">Next</a></li>
-                </ul></nav>
-            <% } %>
-        </div>
-    </div>
+  <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <h6 class="mb-0 fw-semibold text-primary">
+      <i class="bi bi-list-task me-1"></i> Daftar Aset (<%= totalItems %> Aset Ditemukan)
+    </h6>
+    <a href="/items/new" class="btn btn-primary btn-sm rounded-pill">
+      <i class="bi bi-plus-lg me-1"></i>Tambah Aset Baru
+    </a>
+  </div>
+
+  <div class="table-responsive small">
+    <table class="table table-hover table-striped mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Gambar</th>
+          <th>Nama Aset</th>
+          <th>Kategori</th>
+          <th>No. Inventaris</th>
+          <th>S/N</th>
+          <th>Lokasi / Dept</th>
+          <th>Status</th>
+          <th>Kondisi</th>
+          <th>PIC</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (items && items.length > 0) { %>
+          <% items.forEach(item => { %>
+            <tr>
+              <td>
+                <% let listImagePath = item.image_url;
+                  if (listImagePath) {
+                    listImagePath = listImagePath.trim();
+                    if (!listImagePath.startsWith('http')) {
+                      listImagePath = (listImagePath.startsWith('/') ? '' : '/') + listImagePath;
+                    }
+                  } else {
+                    listImagePath = '/images/placeholder-image.webp';
+                  } %>
+                <img src="<%= listImagePath %>" class="avatar avatar-sm rounded" alt="<%= item.name %>">
+              </td>
+              <td><a href="/items/<%= item.id %>" class="text-reset"><%= item.name %></a></td>
+              <td><span class="badge bg-secondary-lt"><%= item.category ? item.category.name : 'N/A' %></span></td>
+              <td><%= item.no_inventaris || '-' %></td>
+              <td><%= item.serial_number || '-' %></td>
+              <td><%= item.location ? item.location.name : (item.department ? item.department.name : '-') %></td>
+              <td><%= item.availability_status || '-' %></td>
+              <td><%= item.condition %></td>
+              <td><%= item.pic_name || '-' %></td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="9" class="text-center text-muted fst-italic py-4">Tidak ada aset yang ditemukan.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
 </div>
 
-<%- include('../../partials/qr_modal') %> 
+<%- include('../../partials/qr_modal') %>
 <%- include('../../partials/footer') %>
 
-<%# --- SCRIPT UNTUK GRAFIK (FIXED) --- %>
+<%# ============================================================= %>
+<%# --- SCRIPT GRAFIK CHART.JS --- %>
+<%# ============================================================= %>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('categoryChartCanvas');
-    if (ctx) {
-        const categoryData = <%- JSON.stringify(stats.categoryCounts || {}) %>;
-        const labels = Object.keys(categoryData);
-        const data = Object.values(categoryData);
-        const chartColors = [ 'rgb(13, 110, 253)', 'rgb(25, 135, 84)', 'rgb(255, 193, 7)', 'rgb(220, 53, 69)', 'rgb(108, 117, 125)', 'rgb(13, 202, 240)' ];
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: { labels: labels, datasets: [{ label: 'Jumlah Aset', data: data, backgroundColor: chartColors.slice(0, labels.length), hoverOffset: 4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', } } }
-        });
-    }
+  const ctx = document.getElementById('categoryChartCanvas');
+  if (ctx) {
+    const categoryData = <%- JSON.stringify(stats.categoryCounts || {}) %>;
+    const labels = Object.keys(categoryData);
+    const data = Object.values(categoryData);
+    const chartColors = [
+      'rgb(13, 110, 253)',
+      'rgb(25, 135, 84)',
+      'rgb(255, 193, 7)',
+      'rgb(220, 53, 69)',
+      'rgb(108, 117, 125)',
+      'rgb(13, 202, 240)'
+    ];
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Jumlah Aset',
+          data,
+          backgroundColor: chartColors.slice(0, labels.length),
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'right' } }
+      }
+    });
+  }
 });
 </script>

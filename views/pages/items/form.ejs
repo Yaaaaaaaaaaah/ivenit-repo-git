@@ -1,215 +1,222 @@
 <%- include('../../partials/header', { title: title }) %>
 
 <div class="row justify-content-center">
-    <div class="col-lg-10 col-xl-9">
-        
-        <form action="<%= (typeof item !== 'undefined' && item) ? '/items/' + item.id + '/edit' : '/items' %>" method="POST" enctype="multipart/form-data">
-            
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h4 mb-0 fw-semibold text-primary"><i class="bi <%= (typeof item !== 'undefined' && item) ? 'bi-pencil-square' : 'bi-plus-circle-fill' %> me-2"></i><%= title %></h1>
-                <div>
-                    <a href="<%= (typeof item !== 'undefined' && item) ? '/items/' + item.id : '/' %>" class="btn btn-outline-secondary btn-sm rounded-pill">Batal</a>
-                    <button type="submit" class="btn btn-primary btn-sm rounded-pill ms-2"><i class="bi bi-save-fill me-1"></i> Simpan Aset</button>
-                </div>
+  <div class="col-lg-10 col-xl-9">
+    <form action="<%= (typeof item !== 'undefined' && item) ? '/items/' + item.id + '/edit' : '/items' %>" 
+          method="POST" 
+          enctype="multipart/form-data">
+
+      <!-- HEADER FORM -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h4 mb-0 fw-semibold text-primary">
+          <i class="bi <%= (typeof item !== 'undefined' && item) ? 'bi-pencil-square' : 'bi-plus-circle-fill' %> me-2"></i>
+          <%= title %>
+        </h1>
+        <div>
+          <a href="<%= (typeof item !== 'undefined' && item) ? '/items/' + item.id : '/' %>" 
+             class="btn btn-outline-secondary btn-sm rounded-pill">Batal</a>
+          <button type="submit" class="btn btn-primary btn-sm rounded-pill ms-2">
+            <i class="bi bi-save-fill me-1"></i> Simpan Aset
+          </button>
+        </div>
+      </div>
+
+      <!-- ALERT ERROR -->
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert alert-danger small" role="alert">
+          <strong>Gagal menyimpan!</strong> <%= errorMessage %>
+        </div>
+      <% } %>
+
+      <!-- BAGIAN 1: KATEGORI & INFO UTAMA -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label for="name" class="form-label">Nama Aset <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="name" name="name" 
+                     value="<%= (typeof item !== 'undefined' && item) ? item.name : '' %>" required>
+            </div>
+            <div class="col-md-4">
+              <label for="category" class="form-label">Kategori <span class="text-danger">*</span></label>
+              <select class="form-select" id="category" name="categoryId" required>
+                <option value="" disabled <%= !(typeof item !== 'undefined' && item) ? 'selected' : '' %>>Pilih Kategori...</option>
+                <% if (typeof categories !== 'undefined' && categories.length > 0) { %>
+                  <% categories.forEach(category => { %>
+                    <option value="<%= category.id %>"
+                            data-category-name="<%= category.name %>"
+                            <%= (typeof item !== 'undefined' && item && item.categoryId == category.id) ? 'selected' : '' %>>
+                      <%= category.name %>
+                    </option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BAGIAN 2: DETAIL & SPESIFIKASI -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary mb-3">Detail Aset</h5>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="no_inventaris" class="form-label">No. Inventaris</label>
+              <input type="text" class="form-control" id="no_inventaris" name="no_inventaris" value="<%= item?.no_inventaris || '' %>">
+            </div>
+            <div class="col-md-4">
+              <label for="serial_number" class="form-label">Serial Number</label>
+              <input type="text" class="form-control" id="serial_number" name="serial_number" value="<%= item?.serial_number || '' %>">
+            </div>
+            <div class="col-md-4">
+              <label for="model" class="form-label">Model</label>
+              <input type="text" class="form-control" id="model" name="model" value="<%= item?.model || '' %>">
             </div>
 
-            <%# Tampilkan pesan error jika ada %>
-            <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
-                <div class="alert alert-danger small" role="alert">
-                    <strong>Gagal menyimpan!</strong> <%= errorMessage %>
-                </div>
-            <% } %>
-
-            <div class="card shadow-sm mb-4">
-                <div class="card-body p-4">
-                    
-                    <%# --- BAGIAN 1: KATEGORI & INFO UTAMA --- %>
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <label for="name" class="form-label">Nama Aset <span class="text-danger">*</span></label>
-                            <input type_="text" class="form-control" id="name" name="name" value="<%= (typeof item !== 'undefined' && item) ? item.name : '' %>" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="category" class="form-label">Kategori <span class="text-danger">*</span></label>
-                            <select class="form-select" id="category" name="categoryId" required>
-                                <option value="" disabled <%= !(typeof item !== 'undefined' && item) ? 'selected' : '' %>>Pilih Kategori...</option>
-                                <% categories.forEach(category => { %>
-                                    <option value="<%= category.id %>" 
-                                            data-category-name="<%= category.name %>"
-                                            <%= (typeof item !== 'undefined' && item && item.categoryId == category.id) ? 'selected' : '' %>>
-                                        <%= category.name %>
-                                    </option>
-                                <% }); %>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+            <!-- Lokasi / Departemen -->
+            <div class="col-md-6 dynamic-field" id="locationField">
+              <label for="location" class="form-label">Lokasi</label>
+              <select class="form-select" id="location" name="locationId">
+                <option value="">Pilih Lokasi...</option>
+                <% locations.forEach(location => { %>
+                  <option value="<%= location.id %>" <%= item?.locationId == location.id ? 'selected' : '' %>><%= location.name %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="col-md-6 dynamic-field" id="departmentField">
+              <label for="department" class="form-label">Departemen</label>
+              <select class="form-select" id="department" name="departmentId">
+                <option value="">Pilih Departemen...</option>
+                <% departments.forEach(department => { %>
+                  <option value="<%= department.id %>" <%= item?.departmentId == department.id ? 'selected' : '' %>><%= department.name %></option>
+                <% }); %>
+              </select>
             </div>
 
-            <%# --- BAGIAN 2: DETAIL & SPESIFIKASI --- %>
-            <div class="card shadow-sm mb-4">
-                <div class="card-body p-4">
-                    <h5 class="card-title text-primary mb-3">Detail Aset</h5>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label for="no_inventaris" class="form-label">No. Inventaris</label>
-                            <input type="text" class="form-control" id="no_inventaris" name="no_inventaris" value="<%= (typeof item !== 'undefined' && item) ? item.no_inventaris : '' %>">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="serial_number" class="form-label">Serial Number</label>
-                            <input type="text" class="form-control" id="serial_number" name="serial_number" value="<%= (typeof item !== 'undefined' && item) ? item.serial_number : '' %>">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="model" class="form-label">Model</label>
-                            <input type="text" class="form-control" id="model" name="model" value="<%= (typeof item !== 'undefined' && item) ? item.model : '' %>">
-                        </div>
+            <!-- Host PC Name -->
+            <div class="col-md-6 dynamic-field" id="hostPcField">
+              <label for="host_pc_name" class="form-label">Host PC Name</label>
+              <input type="text" class="form-control" id="host_pc_name" name="host_pc_name" value="<%= item?.host_pc_name || '' %>">
+            </div>
 
-                        <%# --- Field Dinamis (Lokasi / Departemen) --- %>
-                        <div class="col-md-6 dynamic-field" id="locationField">
-                            <label for="location" class="form-label">Lokasi</label>
-                            <select class="form-select" id="location" name="locationId">
-                                <option value="">Pilih Lokasi...</option>
-                                <% locations.forEach(location => { %>
-                                    <option value="<%= location.id %>" <%= (typeof item !== 'undefined' && item && item.locationId == location.id) ? 'selected' : '' %>><%= location.name %></option>
-                                <% }); %>
-                            </select>
-                        </div>
-                        <div class="col-md-6 dynamic-field" id="departmentField">
-                            <label for="department" class="form-label">Departemen</label>
-                            <select class="form-select" id="department" name="departmentId">
-                                <option value="">Pilih Departemen...</option>
-                                <% departments.forEach(department => { %>
-                                    <option value="<%= department.id %>" <%= (typeof item !== 'undefined' && item && item.departmentId == department.id) ? 'selected' : '' %>><%= department.name %></option>
-                                <% }); %>
-                            </select>
-                        </div>
-                        
-                        <%# --- Field Dinamis (Host PC Name) --- %>
-                        <div class="col-md-6 dynamic-field" id="hostPcField">
-                            <label for="host_pc_name" class="form-label">Host PC Name</label>
-                            <input type="text" class="form-control" id="host_pc_name" name="host_pc_name" value="<%= (typeof item !== 'undefined' && item) ? item.host_pc_name : '' %>">
-                        </div>
-
-                        <%# --- Field Spesifik Kategori (Fieldset) --- %>
-                        <div class="col-12" id="specificFieldsContainer">
-                            <fieldset class="category-fieldset d-none" id="Laptop/PC">
-                                <div class="row g-3 mt-1">
-                                    <div class="col-md-4"><label class="form-label">Processor</label><input type="text" class="form-control" name="Processor" value="<%= (typeof item !== 'undefined' && item) ? item.Processor : '' %>"></div>
-                                    <div class="col-md-4"><label class="form-label">RAM</label><input type="text" class="form-control" name="RAM" value="<%= (typeof item !== 'undefined' && item) ? item.RAM : '' %>"></div>
-                                    <div class="col-md-4"><label class="form-label">Storage</label><input type="text" class="form-control" name="Storage" value="<%= (typeof item !== 'undefined' && item) ? item.Storage : '' %>"></div>
-                                    <div class="col-md-4"><label class="form-label">Operating System</label><input type="text" class="form-control" name="Operating_System" value="<%= (typeof item !== 'undefined' && item) ? item.Operating_System : '' %>"></div>
-                                </div>
-                            </fieldset>
-                            <fieldset class="category-fieldset d-none" id="Printer">
-                                <div class="row g-3 mt-1">
-                                    <div class="col-md-4"><label class="form-label">Tipe Tinta</label><input type="text" class="form-control" name="Tipe_Tinta" value="<%= (typeof item !== 'undefined' && item) ? item.Tipe_Tinta : '' %>"></div>
-                                    <div class="col-md-4"><label class="form-label">Konektivitas</label><input type="text" class="form-control" name="Konektivitas" value="<%= (typeof item !== 'undefined' && item) ? item.Konektivitas : '' %>"></div>
-                                </div>
-                            </fieldset>
-                            </div>
-                    </div>
+            <!-- Field Kategori Spesifik -->
+            <div class="col-12" id="specificFieldsContainer">
+              <fieldset class="category-fieldset d-none" id="Laptop/PC">
+                <div class="row g-3 mt-1">
+                  <div class="col-md-4"><label class="form-label">Processor</label><input type="text" class="form-control" name="Processor" value="<%= item?.Processor || '' %>"></div>
+                  <div class="col-md-4"><label class="form-label">RAM</label><input type="text" class="form-control" name="RAM" value="<%= item?.RAM || '' %>"></div>
+                  <div class="col-md-4"><label class="form-label">Storage</label><input type="text" class="form-control" name="Storage" value="<%= item?.Storage || '' %>"></div>
+                  <div class="col-md-4"><label class="form-label">Operating System</label><input type="text" class="form-control" name="Operating_System" value="<%= item?.Operating_System || '' %>"></div>
                 </div>
-            </div>
-
-            <%# --- BAGIAN 3: INFO LAIN & GAMBAR --- %>
-            <div class="card shadow-sm mb-4">
-                <div class="card-body p-4">
-                    <h5 class="card-title text-primary mb-3">Info Tambahan</h5>
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label for="purchase_date" class="form-label">Tanggal Beli</label>
-                            <input type="date" class="form-control" id="purchase_date" name="purchase_date" value="<%= (typeof item !== 'undefined' && item && item.purchase_date) ? new Date(item.purchase_date).toISOString().split('T')[0] : '' %>">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="condition" class="form-label">Kondisi <span class="text-danger">*</span></label>
-                            <select class="form-select" id="condition" name="condition" required>
-                                <option value="Baik" <%= (typeof item !== 'undefined' && item && item.condition === 'Baik') ? 'selected' : '' %>>Baik</option>
-                                <option value="Perlu Perbaikan" <%= (typeof item !== 'undefined' && item && item.condition === 'Perlu Perbaikan') ? 'selected' : '' %>>Perlu Perbaikan</option>
-                                <option value="Rusak" <%= (typeof item !== 'undefined' && item && item.condition === 'Rusak') ? 'selected' : '' %>>Rusak</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="pic_name" class="form-label">Nama PIC</label>
-                            <input type="text" class="form-control" id="pic_name" name="pic_name" value="<%= (typeof item !== 'undefined' && item) ? item.pic_name : '' %>">
-                        </div>
-                        <div class="col-12">
-                            <label for="notes" class="form-label">Catatan</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="3"><%= (typeof item !== 'undefined' && item) ? item.notes : '' %></textarea>
-                        </div>
-                        
-                        <div class="col-12">
-                            <label for="image" class="form-label">Upload Gambar Aset</label>
-                            <input class="form-control" type="file" id="image" name="image" accept="image/png, image/jpeg">
-                            <% if (typeof item !== 'undefined' && item && item.image_url) { %>
-                                <div class="mt-2">
-                                    <small>Gambar saat ini:</small>
-                                    <img src="<%= item.image_url %>" alt="Gambar Aset" style="max-width: 150px; display: block; margin-top: 5px; border-radius: 4px;">
-                                </div>
-                            <% } %>
-                        </div>
-                    </div>
+              </fieldset>
+              <fieldset class="category-fieldset d-none" id="Printer">
+                <div class="row g-3 mt-1">
+                  <div class="col-md-4"><label class="form-label">Tipe Tinta</label><input type="text" class="form-control" name="Tipe_Tinta" value="<%= item?.Tipe_Tinta || '' %>"></div>
+                  <div class="col-md-4"><label class="form-label">Konektivitas</label><input type="text" class="form-control" name="Konektivitas" value="<%= item?.Konektivitas || '' %>"></div>
                 </div>
+              </fieldset>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div class="form-footer text-end mb-5">
-                <a href="<%= (typeof item !== 'undefined' && item) ? '/items/' + item.id : '/' %>" class="btn btn-outline-secondary rounded-pill">Batal</a>
-                <button type="submit" class="btn btn-primary rounded-pill ms-2"><i class="bi bi-save-fill me-1"></i> Simpan Aset</button>
+      <!-- BAGIAN 3: INFO TAMBAHAN -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary mb-3">Info Tambahan</h5>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="purchase_date" class="form-label">Tanggal Beli</label>
+              <input type="date" class="form-control" id="purchase_date" name="purchase_date" value="<%= item?.purchase_date ? new Date(item.purchase_date).toISOString().split('T')[0] : '' %>">
             </div>
-        </form>
-    </div>
+            <div class="col-md-4">
+              <label for="condition" class="form-label">Kondisi <span class="text-danger">*</span></label>
+              <select class="form-select" id="condition" name="condition" required>
+                <option value="Baik" <%= item?.condition === 'Baik' ? 'selected' : '' %>>Baik</option>
+                <option value="Perlu Perbaikan" <%= item?.condition === 'Perlu Perbaikan' ? 'selected' : '' %>>Perlu Perbaikan</option>
+                <option value="Rusak" <%= item?.condition === 'Rusak' ? 'selected' : '' %>>Rusak</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="pic_name" class="form-label">Nama PIC</label>
+              <input type="text" class="form-control" id="pic_name" name="pic_name" value="<%= item?.pic_name || '' %>">
+            </div>
+            <div class="col-12">
+              <label for="notes" class="form-label">Catatan</label>
+              <textarea class="form-control" id="notes" name="notes" rows="3"><%= item?.notes || '' %></textarea>
+            </div>
+            <div class="col-12">
+              <label for="image" class="form-label">Upload Gambar Aset</label>
+              <input class="form-control" type="file" id="image" name="image" accept="image/png, image/jpeg">
+              <% if (item?.image_url) { %>
+                <div class="mt-2">
+                  <small>Gambar saat ini:</small>
+                  <img src="<%= item.image_url %>" alt="Gambar Aset" style="max-width:150px; display:block; margin-top:5px; border-radius:4px;">
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer text-end mb-5">
+        <a href="<%= (typeof item !== 'undefined' && item) ? '/items/' + item.id : '/' %>" 
+           class="btn btn-outline-secondary rounded-pill">Batal</a>
+        <button type="submit" class="btn btn-primary rounded-pill ms-2">
+          <i class="bi bi-save-fill me-1"></i> Simpan Aset
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
-<%# --- JAVASCRIPT UNTUK FORM DINAMIS --- %>
+<!-- SCRIPT FORM DINAMIS -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const categorySelector = document.getElementById('category');
-        const dynamicFormContainer = document.getElementById('specificFieldsContainer');
-        const locationField = document.getElementById('locationField');
-        const departmentField = document.getElementById('departmentField');
-        const hostPcField = document.getElementById('hostPcField');
-        const specificFieldsContainer = document.getElementById('specificFieldsContainer');
+  document.addEventListener('DOMContentLoaded', function() {
+    const categorySelector = document.getElementById('category');
+    const dynamicFormContainer = document.getElementById('specificFieldsContainer');
+    const locationField = document.getElementById('locationField');
+    const departmentField = document.getElementById('departmentField');
+    const hostPcField = document.getElementById('hostPcField');
+    const specificFieldsContainer = document.getElementById('specificFieldsContainer');
 
-        function showRelevantFields() {
-            const selectedOption = categorySelector.options[categorySelector.selectedIndex];
-            if (!selectedOption || selectedOption.value === "") {
-                // Sembunyikan semua jika tidak ada yang dipilih
-                [locationField, departmentField, hostPcField, specificFieldsContainer].forEach(el => el.classList.add('d-none'));
-                specificFieldsContainer.querySelectorAll('.category-fieldset').forEach(fieldset => {
-                    fieldset.classList.add('d-none');
-                    fieldset.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = true; });
-                });
-                return;
-            }
+    function showRelevantFields() {
+      const selectedOption = categorySelector.options[categorySelector.selectedIndex];
+      if (!selectedOption || selectedOption.value === "") {
+        [locationField, departmentField, hostPcField, specificFieldsContainer].forEach(el => el.classList.add('d-none'));
+        specificFieldsContainer.querySelectorAll('.category-fieldset').forEach(fieldset => {
+          fieldset.classList.add('d-none');
+          fieldset.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = true; });
+        });
+        return;
+      }
 
-            const categoryName = selectedOption.getAttribute('data-category-name');
-            const isLaptopPC = categoryName === 'Laptop/PC';
+      const categoryName = selectedOption.getAttribute('data-category-name');
+      const isLaptopPC = categoryName === 'Laptop/PC';
 
-            // Tampilkan/sembunyikan field berdasarkan apakah itu Laptop/PC
-            locationField.classList.toggle('d-none', isLaptopPC);
-            departmentField.classList.toggle('d-none', !isLaptopPC);
-            hostPcField.classList.toggle('d-none', !isLaptopPC);
+      locationField.classList.toggle('d-none', isLaptopPC);
+      departmentField.classList.toggle('d-none', !isLaptopPC);
+      hostPcField.classList.toggle('d-none', !isLaptopPC);
 
-            // Atur 'disabled' dan 'required'
-            locationField.querySelector('select').disabled = isLaptopPC;
-            departmentField.querySelector('select').disabled = !isLaptopPC;
-            hostPcField.querySelector('input').disabled = !isLaptopPC;
-            
-            locationField.querySelector('select').required = !isLaptopPC;
-            departmentField.querySelector('select').required = isLaptopPC;
+      locationField.querySelector('select').disabled = isLaptopPC;
+      departmentField.querySelector('select').disabled = !isLaptopPC;
+      hostPcField.querySelector('input').disabled = !isLaptopPC;
 
-            // Tampilkan fieldset spesifik
-            dynamicFormContainer.classList.remove('d-none');
-            specificFieldsContainer.querySelectorAll('.category-fieldset').forEach(fieldset => {
-                const isTarget = fieldset.id === categoryName;
-                fieldset.classList.toggle('d-none', !isTarget);
-                fieldset.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = !isTarget; });
-            });
-        }
+      locationField.querySelector('select').required = !isLaptopPC;
+      departmentField.querySelector('select').required = isLaptopPC;
 
-        categorySelector.addEventListener('change', showRelevantFields);
-        // Jalankan saat halaman dimuat untuk mengisi nilai form edit
-        showRelevantFields(); 
-    });
+      dynamicFormContainer.classList.remove('d-none');
+      specificFieldsContainer.querySelectorAll('.category-fieldset').forEach(fieldset => {
+        const isTarget = fieldset.id === categoryName;
+        fieldset.classList.toggle('d-none', !isTarget);
+        fieldset.querySelectorAll('input, select, textarea').forEach(input => { input.disabled = !isTarget; });
+      });
+    }
+
+    categorySelector.addEventListener('change', showRelevantFields);
+    showRelevantFields(); // Jalankan saat halaman dimuat (untuk mode edit)
+  });
 </script>
 
 <%- include('../../partials/footer') %>

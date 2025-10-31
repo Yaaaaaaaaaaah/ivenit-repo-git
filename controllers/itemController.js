@@ -1,14 +1,14 @@
+// ====== itemController.js (versi final gabungan & diperbaiki) ======
 const fs = require('fs');
 const path = require('path');
 const { Item, Category, Location, Department, ItemSpecification, MaintenanceLog, Loan, sequelize } = require('../models');
-const { Op } = require('sequelize'); 
+const { Op } = require('sequelize');
 const qrcode = require('qrcode');
-const cloudinary = require('cloudinary').v2; // Butuh ini untuk menghapus gambar lama
+const cloudinary = require('cloudinary').v2; // untuk hapus gambar lama di Cloudinary
 
 // ===== FUNGSI LIST (DASHBOARD) =====
 exports.list = async (req, res) => {
     try {
-        // ... (Logika list/dashboard Anda tidak berubah) ...
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const categoryId = req.query.categoryId;
@@ -16,9 +16,7 @@ exports.list = async (req, res) => {
         const offset = (page - 1) * limit;
 
         const whereCondition = {};
-        if (categoryId) {
-            whereCondition.categoryId = categoryId;
-        }
+        if (categoryId) whereCondition.categoryId = categoryId;
         if (search) {
             whereCondition[Op.or] = [
                 { name: { [Op.like]: `%${search}%` } },
@@ -32,12 +30,14 @@ exports.list = async (req, res) => {
             where: whereCondition,
             include: ['category', 'location', 'department'],
             order: [['createdAt', 'DESC']],
-            limit: limit,
-            offset: offset,
+            limit,
+            offset
         });
+
         const totalPages = Math.ceil(filteredCount / limit);
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const totalItemsAbsolute = await Item.count();
+
         const statusCountsRaw = await Item.findAll({
             attributes: ['availability_status', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
             group: ['availability_status']
@@ -46,6 +46,7 @@ exports.list = async (req, res) => {
             acc[item.availability_status] = item.get('count');
             return acc;
         }, {});
+
         const categoryCountsRaw = await Item.findAll({
             include: [{ model: Category, as: 'category', attributes: ['name'] }],
             attributes: ['categoryId', [sequelize.fn('COUNT', sequelize.col('Item.id')), 'count']],
@@ -59,49 +60,37 @@ exports.list = async (req, res) => {
             }
             return acc;
         }, {});
+
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
         const recentMaintenances = await MaintenanceLog.findAll({
-            where: {
-                activity_date: {
-                    [Op.between]: [startOfMonth, endOfMonth] 
-                }
-            },
+            where: { activity_date: { [Op.between]: [startOfMonth, endOfMonth] } },
             order: [['activity_date', 'DESC']],
             limit: 5,
-            include: [{
-                model: Item,
-                as: 'item',
-                attributes: ['id', 'name']
-            }]
+            include: [{ model: Item, as: 'item', attributes: ['id', 'name'] }]
         });
 
         res.render('pages/items/index', {
             title: 'Dashboard Aset',
-            items: items,
-            categories: categories,
+            items,
+            categories,
             totalItems: filteredCount,
-            totalPages: totalPages,
+            totalPages,
             currentPage: page,
-            limit: limit,
+            limit,
             search: search || '',
             categoryId: categoryId || '',
-            offset: offset,
-            totalItemsAbsolute: totalItemsAbsolute,
-            stats: {
-                statusCounts: statusCounts,
-                categoryCounts: categoryCounts
-            },
-            recentMaintenances: recentMaintenances
+            offset,
+            totalItemsAbsolute,
+            stats: { statusCounts, categoryCounts },
+            recentMaintenances
         });
-
     } catch (error) {
         console.error("Error listing items:", error);
-        res.status(500).send(`Gagal memuat daftar aset. Detail: ${error.message} ${error.original ? '(' + error.original.message + ')' : ''}`);
+        res.status(500).send(`Gagal memuat daftar aset. Detail: ${error.message}`);
     }
 };
-
 
 // ===== FUNGSI SHOW (DETAIL) =====
 exports.show = async (req, res) => {
@@ -111,19 +100,18 @@ exports.show = async (req, res) => {
                 { model: Category, as: 'category' },
                 { model: Location, as: 'location' },
                 { model: Department, as: 'department' },
-                { model: ItemSpecification, as: 'specifications' }, 
+                { model: ItemSpecification, as: 'specifications' },
                 { model: MaintenanceLog, as: 'logs', order: [['activity_date', 'DESC']] }
             ]
         });
-        if (!item) {
-            return res.status(404).send('Aset tidak ditemukan');
-        }
+        if (!item) return res.status(404).send('Aset tidak ditemukan');
+
         res.render('pages/items/detail', {
             title: `Detail Aset: ${item.name}`,
-            item: item
+            item
         });
     } catch (error) {
-        console.error("Error showing item details:", error); 
+        console.error("Error showing item details:", error);
         res.status(500).send(error.message);
     }
 };
@@ -155,47 +143,48 @@ exports.create = async (req, res) => {
             pic_name, notes, categoryId, locationId, departmentId, ...specs
         } = req.body;
 
-        // PERBAIKAN: Gunakan req.file.path untuk Cloudinary
         const imageUrl = req.file ? req.file.path : null;
 
         if (serial_number) {
-            const existingSN = await Item.findOne({ where: { serial_number: serial_number } });
-            if (existingSN) throw new Error(`Data duplikat. Serial number "${serial_number}" sudah digunakan.`);
+            const existingSN = await Item.findOne({ where: { serial_number } });
+            if (existingSN) throw new Error(`Serial number "${serial_number}" sudah digunakan.`);
         }
         if (no_inventaris) {
-            const existingInv = await Item.findOne({ where: { no_inventaris: no_inventaris } });
-            if (existingInv) throw new Error(`Data duplikat. No inventaris "${no_inventaris}" sudah digunakan.`);
+            const existingInv = await Item.findOne({ where: { no_inventaris } });
+            if (existingInv) throw new Error(`No inventaris "${no_inventaris}" sudah digunakan.`);
         }
 
         const newItem = await Item.create({
-            name, no_inventaris: no_inventaris || null, serial_number: serial_number || null, model: model || null,
+            name,
+            no_inventaris: no_inventaris || null,
+            serial_number: serial_number || null,
+            model: model || null,
             host_pc_name: host_pc_name || null,
             purchase_date: purchase_date || null,
-            condition, pic_name, notes: notes || null,
-            categoryId, locationId: locationId || null, departmentId: departmentId || null,
-            image_url: imageUrl // Simpan URL Cloudinary
+            condition,
+            pic_name,
+            notes: notes || null,
+            categoryId,
+            locationId: locationId || null,
+            departmentId: departmentId || null,
+            image_url: imageUrl
         }, { transaction: t });
 
-        const specificationsToCreate = [];
-        for (const [key, value] of Object.entries(specs)) {
-            if (value) {
-                specificationsToCreate.push({
-                    itemId: newItem.id,
-                    spec_key: key.replace(/_/g, ' '),
-                    spec_value: value
-                });
-            }
-        }
-        if (specificationsToCreate.length > 0) {
+        const specificationsToCreate = Object.entries(specs)
+            .filter(([_, value]) => value)
+            .map(([key, value]) => ({
+                itemId: newItem.id,
+                spec_key: key.replace(/_/g, ' '),
+                spec_value: value
+            }));
+
+        if (specificationsToCreate.length)
             await ItemSpecification.bulkCreate(specificationsToCreate, { transaction: t });
-        }
 
         await t.commit();
         res.redirect('/');
-
-    } catch (error) { 
+    } catch (error) {
         await t.rollback();
-        // PERBAIKAN: Kirim 'categories' dll saat error (memperbaiki 'categories is not defined')
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const locations = await Location.findAll({ order: [['name', 'ASC']] });
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
@@ -215,9 +204,9 @@ exports.showEditForm = async (req, res) => {
     try {
         const item = await Item.findByPk(req.params.id, {
             include: [
-                { model: Category, as: 'category' }, 
+                { model: Category, as: 'category' },
                 { model: ItemSpecification, as: 'specifications' }
-            ] 
+            ]
         });
         if (!item) return res.status(404).send('Aset tidak ditemukan');
 
@@ -226,13 +215,13 @@ exports.showEditForm = async (req, res) => {
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
 
         const itemSpecs = item.specifications.reduce((acc, spec) => {
-            acc[spec.spec_key.replace(/ /g, '_')] = spec.spec_value; 
+            acc[spec.spec_key.replace(/ /g, '_')] = spec.spec_value;
             return acc;
         }, {});
 
         res.render('pages/items/form', {
             title: `Edit Aset: ${item.name}`,
-            item: { ...item.toJSON(), ...itemSpecs }, 
+            item: { ...item.toJSON(), ...itemSpecs },
             categories,
             locations,
             departments
@@ -256,65 +245,64 @@ exports.update = async (req, res) => {
         } = req.body;
 
         if (serial_number) {
-            const existingSN = await Item.findOne({ where: { serial_number: serial_number, id: { [Op.ne]: itemId } } });
-            if (existingSN) throw new Error(`Data duplikat. Serial number "${serial_number}" sudah digunakan.`);
+            const existingSN = await Item.findOne({ where: { serial_number, id: { [Op.ne]: itemId } } });
+            if (existingSN) throw new Error(`Serial number "${serial_number}" sudah digunakan.`);
         }
         if (no_inventaris) {
-            const existingInv = await Item.findOne({ where: { no_inventaris: no_inventaris, id: { [Op.ne]: itemId } } });
-            if (existingInv) throw new Error(`Data duplikat. No inventaris "${no_inventaris}" sudah digunakan.`);
+            const existingInv = await Item.findOne({ where: { no_inventaris, id: { [Op.ne]: itemId } } });
+            if (existingInv) throw new Error(`No inventaris "${no_inventaris}" sudah digunakan.`);
         }
 
         let imageUrl = itemToUpdate.image_url;
         if (req.file) {
-            // Jika ada file baru, gunakan path Cloudinary
             imageUrl = req.file.path;
-            
-            // Hapus gambar LAMA dari Cloudinary (jika ada)
+            // Hapus gambar lama dari Cloudinary (jika ada)
             if (itemToUpdate.image_url && itemToUpdate.image_url.includes('cloudinary')) {
                 const publicId = itemToUpdate.image_url.split('/').pop().split('.')[0];
-                // Pastikan path publicId sesuai dengan struktur yang Anda gunakan di Cloudinary
                 cloudinary.uploader.destroy(`ivenit_uploads/${publicId}`);
             }
         }
 
         await itemToUpdate.update({
-            name, no_inventaris: no_inventaris || null, serial_number: serial_number || null, model: model || null,
+            name,
+            no_inventaris: no_inventaris || null,
+            serial_number: serial_number || null,
+            model: model || null,
             host_pc_name: host_pc_name || null,
             purchase_date: purchase_date || null,
-            condition, pic_name, notes: notes || null,
-            categoryId, locationId: locationId || null, departmentId: departmentId || null,
+            condition,
+            pic_name,
+            notes: notes || null,
+            categoryId,
+            locationId: locationId || null,
+            departmentId: departmentId || null,
             image_url: imageUrl
         }, { transaction: t });
 
-        // Hapus spesifikasi lama dalam konteks transaction
-        await ItemSpecification.destroy({ where: { itemId: itemId }, transaction: t });
+        // Hapus spesifikasi lama lalu buat ulang
+        await ItemSpecification.destroy({ where: { itemId }, transaction: t });
 
-        const specificationsToCreate = [];
-        for (const [key, value] of Object.entries(specs)) {
-            if (value) {
-                specificationsToCreate.push({
-                    itemId: itemId,
-                    spec_key: key.replace(/_/g, ' '),
-                    spec_value: value
-                });
-            }
-        }
-        if (specificationsToCreate.length > 0) {
+        const specificationsToCreate = Object.entries(specs)
+            .filter(([_, value]) => value)
+            .map(([key, value]) => ({
+                itemId,
+                spec_key: key.replace(/_/g, ' '),
+                spec_value: value
+            }));
+
+        if (specificationsToCreate.length)
             await ItemSpecification.bulkCreate(specificationsToCreate, { transaction: t });
-        }
 
         await t.commit();
         res.redirect(`/items/${itemId}`);
-
-    } catch (error) { 
+    } catch (error) {
         await t.rollback();
-        // PERBAIKAN: Kirim 'categories' dll saat error
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
         const locations = await Location.findAll({ order: [['name', 'ASC']] });
         const departments = await Department.findAll({ order: [['name', 'ASC']] });
-        req.body.id = itemId; // Kirim ID kembali ke form
+        req.body.id = itemId;
         res.render('pages/items/form', {
-            title: `Edit Aset`,
+            title: 'Edit Aset',
             item: req.body,
             categories,
             locations,
@@ -324,17 +312,14 @@ exports.update = async (req, res) => {
     }
 };
 
-
-// ===== FUNGSI DELETE & QRCODE =====
+// ===== FUNGSI DELETE & QR CODE =====
 exports.delete = async (req, res) => {
     try {
         const itemToDelete = await Item.findByPk(req.params.id);
-        // Hapus file dari Cloudinary (jika ada)
         if (itemToDelete && itemToDelete.image_url && itemToDelete.image_url.includes('cloudinary')) {
-                const publicId = itemToDelete.image_url.split('/').pop().split('.')[0];
-                cloudinary.uploader.destroy(`ivenit_uploads/${publicId}`);
+            const publicId = itemToDelete.image_url.split('/').pop().split('.')[0];
+            cloudinary.uploader.destroy(`ivenit_uploads/${publicId}`);
         }
-
         await Item.destroy({ where: { id: req.params.id } });
         res.redirect('/');
     } catch (error) {
@@ -347,7 +332,6 @@ exports.qrCode = async (req, res) => {
         const item = await Item.findByPk(req.params.id);
         if (!item) return res.status(404).send('Aset tidak ditemukan');
 
-        // PERBAIKAN: Gunakan BASE_URL (URL Render Anda)
         const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
         const assetUrl = `${baseUrl}/items/${item.id}`;
 
