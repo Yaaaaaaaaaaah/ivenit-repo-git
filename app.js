@@ -8,17 +8,14 @@ const db = require('./models');
 const routes = require('./routes');
 
 const app = express();
-// ===== PERUBAHAN DI SINI =====
-// const port = 3000; // <- Baris ini diganti
-const port = process.env.PORT || 3000; // <- Menjadi baris ini
-// =============================
+const port = process.env.PORT || 3000; 
 
 const sessionStore = new SequelizeStore({
   db: db.sequelize, 
 });
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || '4dm1n1str4tor!', // Baca secret dari .env
+  secret: process.env.SESSION_SECRET || '4dm1n1str4tor!', 
   store: sessionStore,
   resave: false,
   saveUninitialized: false,
@@ -45,9 +42,8 @@ app.use('/', routes);
 
 db.sequelize.sync({ alter: true }) 
   .then(() => {
-    // Pastikan app.listen menggunakan variabel 'port' yang sudah diubah
     app.listen(port, () => { 
-      console.log(`Server berjalan di port: ${port}`); // Pesan log diubah
+      console.log(`Server berjalan di port: ${port}`); 
     });
   })
   .catch(err => {
