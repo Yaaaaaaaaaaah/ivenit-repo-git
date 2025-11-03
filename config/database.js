@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'production') {
   }
 
   sequelize = new Sequelize(
-    process.env.MYSQL_DATABASE, // Nama DB dari Railway
+    process.env.MYSQL_DB || process.env.MYSQL_DATABASE, // Nama DB dari Railway
     process.env.MYSQL_USER,     // User dari Railway
     process.env.MYSQL_PASSWORD, // Password dari Railway
     {
