@@ -26,6 +26,14 @@ module.exports = (sequelize) => {
       type: DataTypes.DATEONLY, 
       allowNull: true
     },
+    
+    warranty_duration_months: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      comment: 'Durasi garansi dalam bulan (misal: 3, 6, 12)'
+    },
+
     condition: {
       type: DataTypes.STRING,
       allowNull: false
@@ -38,10 +46,16 @@ module.exports = (sequelize) => {
       type: DataTypes.TEXT,
       allowNull: true
     },
+    
     image_url: { 
-      type: DataTypes.STRING,
+      type: DataTypes.STRING, 
       allowNull: true
     },
+    image_public_id: {
+      type: DataTypes.STRING, 
+      allowNull: true
+    },
+
     availability_status: {
         type: DataTypes.ENUM('Tersedia', 'Dipinjam', 'Perbaikan'),
         defaultValue: 'Tersedia'

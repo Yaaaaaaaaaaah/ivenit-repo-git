@@ -19,72 +19,84 @@
                          <label class="input-group-text" for="department_id"><i class="bi bi-filter-left"></i></label>
                         <select name="department_id" id="department_id" class="form-select" required onchange="this.form.submit()">
                             <option value="">-- Pilih Departemen --</option>
-                            <% departments.forEach(d => { %>
-                                <option value="<%= d.id %>" <%= selectedDepartmentId == d.id ? 'selected' : '' %>><%= d.name %></option>
+                            <% departments.forEach(dept => { %>
+                                <option value="<%= dept.id %>" <%= (selectedDepartmentId == dept.id) ? 'selected' : '' %>><%= dept.name %></option>
                             <% }) %>
                         </select>
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
                     </div>
-                    <input type="hidden" name="location_id" value="">
                 </form>
             </div>
         </div>
     </div>
-
+    
     <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary-subtle text-primary py-2">
-                <h6 class="mb-0 fw-semibold"><i class="bi bi-geo-alt-fill me-1"></i>Laporan Non-PC per Lokasi</h6>
+         <div class="card shadow-sm">
+             <div class="card-header bg-info-subtle text-info-emphasis py-2">
+                 <h6 class="mb-0 fw-semibold"><i class="bi bi-geo-alt-fill me-1"></i>Laporan Aset per Lokasi</h6>
             </div>
             <div class="card-body py-3">
                 <form action="/reports" method="GET">
                     <div class="input-group input-group-sm">
-                         <label class="input-group-text" for="location_id"><i class="bi bi-filter-right"></i></label>
+                         <label class="input-group-text" for="location_id"><i class="bi bi-filter-left"></i></label>
                         <select name="location_id" id="location_id" class="form-select" required onchange="this.form.submit()">
                             <option value="">-- Pilih Lokasi --</option>
-                            <% locations.forEach(l => { %>
-                                <option value="<%= l.id %>" <%= selectedLocationId == l.id ? 'selected' : '' %>><%= l.name %></option>
+                             <% locations.forEach(loc => { %>
+                                <option value="<%= loc.id %>" <%= (selectedLocationId == loc.id) ? 'selected' : '' %>><%= loc.name %></option>
                             <% }) %>
                         </select>
-                         <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
                     </div>
-                    <input type="hidden" name="department_id" value="">
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+
 <div class="card shadow-sm mt-4">
-    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 text-primary"><i class="bi bi-clipboard-data-fill me-2"></i>Hasil Laporan <% if (reportTitle) { %> - <span class="fw-normal"><%= reportTitle %></span><% } %></h5>
-        <% if (items && items.length > 0) { %>
-            <button class="btn btn-sm btn-outline-success disabled rounded-pill"><i class="bi bi-file-earmark-excel-fill me-1"></i> Export (Soon)</button>
-        <% } %>
+    <div class="card-header bg-white border-bottom-0 py-3">
+        <h5 class="mb-0 fw-bold text-primary-emphasis"><i class="bi bi-file-earmark-text me-2"></i>Hasil Laporan: <%= reportTitle || '...' %></h5>
     </div>
+    
     <div class="card-body p-0">
-        <% if (items && items.length > 0 && reportType === 'department') { %>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover table-sm mb-0 small">
-                    <thead class="table-light">
-                        <tr> <th class="ps-3">Host/PC Name</th> <th>PIC</th> <th>AnyDesk ID</th> <th>IP Address</th> <th>OS</th> <th>Office</th> </tr>
-                    </thead>
-                    <tbody>
-                        <% items.forEach(item => { const getSpec = (key) => (item.specifications.find(s => s.spec_key === key) || {}).spec_value || '-'; %>
-                            <tr> <td class="ps-3"><%= item.host_pc_name || '-' %></td> <td><%= item.pic_name %></td> <td><%= getSpec('AnyDesk ID') %></td> <td><%= getSpec('IP Address') %></td> <td><%= getSpec('Operating System') %></td> <td><%= getSpec('Ms. Office') %></td> </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
-        <% } else if (items && items.length > 0 && reportType === 'location') { %>
+        
+        <% if (items && items.length > 0) { %>
              <div class="table-responsive">
                 <table class="table table-striped table-hover table-sm mb-0 small">
-                    <thead class="table-light">
-                        <tr> <th class="ps-3">Nama Perangkat</th> <th>Model</th> <th>Kategori</th> <th>PIC</th> </tr>
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th class="ps-3">No.</th>
+                            <th>Nama Perangkat</th>
+                            <th>Merk</th>
+                            <th>Model</th>
+                            <th>Kategori</th>
+                            <th>PIC</th>
+                            <th>Tanggal Beli</th>
+                            <th>Umur Aset</th>
+                            <th>Garansi</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        <% items.forEach(item => { %>
-                            <tr> <td class="ps-3"><%= item.name %></td> <td><%= item.model || '-' %></td> <td><span class="badge text-bg-secondary rounded-pill fw-normal"><%= item.category.name %></span></td> <td><%= item.pic_name %></td> </tr>
+                        <% items.forEach((item, index) => { %>
+                            <tr>
+                                <td class="ps-3"><%= index + 1 %></td>
+                                <td class="fw-medium">
+                                    <%= item.name %>
+                                    <% if (reportType === 'department') { %>
+                                        <br><span class="text-muted" style="font-size: 0.9em;"><%= item.host_pc_name %></span>
+                                    <% } %>
+                                </td>
+                                <td><%= item.merk || '-' %></td>
+                                <td><%= item.model || '-' %></td>
+                                <td><span class="badge text-bg-secondary rounded-pill fw-normal"><%= item.category.name %></span></td>
+                                <td><%= item.pic_name %></td>
+                                <td><%= item.purchase_date ? new Date(item.purchase_date).toLocaleDateString('id-ID') : '-' %></td>
+                                <td class="fw-medium"><%= item.umurAset %></td>
+                                <td>
+                                    <span class="badge text-bg-<%= item.statusGaransiBadge %> rounded-pill fw-normal">
+                                        <%= item.statusGaransi %>
+                                    </span>
+                                </td>
+                            </tr>
                         <% }) %>
                     </tbody>
                 </table>

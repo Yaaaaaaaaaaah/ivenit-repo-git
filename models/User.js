@@ -10,7 +10,6 @@ module.exports = (sequelize) => {
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         isEmail: true
       }
@@ -46,8 +45,8 @@ module.exports = (sequelize) => {
     }
   });
 
-  User.prototype.comparePassword = function (password) {
-    return bcrypt.compare(password, this.password);
+  User.prototype.comparePassword = function(candidatePassword) {
+    return bcrypt.compare(candidatePassword, this.password);
   };
 
   return User;

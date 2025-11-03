@@ -21,6 +21,7 @@
     "cloudinary": "^1.41.3",
     "connect-session-sequelize": "^8.0.2",
     "csv-parser": "^3.2.0",
+    "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
     "express": "^5.1.0",

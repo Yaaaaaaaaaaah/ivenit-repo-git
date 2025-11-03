@@ -1,21 +1,22 @@
-// const cloudinary = require('cloudinary').v2;
-// const { CloudinaryStorage } = require('multer-storage-cloudinary');
-// const multer = require('multer');
+require('dotenv').config(); 
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
 
-// cloudinary.config({ 
-//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-//   api_key: process.env.CLOUDINARY_API_KEY, 
-//   api_secret: process.env.CLOUDINARY_API_SECRET
-// });
+cloudinary.config({ 
+  cloud_name: process.env.CLOUD_NAME, 
+  api_key: process.env.API_KEY, 
+  api_secret: process.env.API_SECRET
+});
 
-// const storage = new CloudinaryStorage({
-//   cloudinary: cloudinary,
-//   params: {
-//     folder: 'ivenit_uploads', 
-//     allowed_formats: ['jpeg', 'jpg', 'png']
-//   }
-// });
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'ivenit_uploads', 
+    allowed_formats: ['jpeg', 'jpg', 'png'] 
+  }
+});
 
-// const upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
 
-// module.exports = upload;
+module.exports = upload;

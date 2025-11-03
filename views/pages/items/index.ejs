@@ -1,6 +1,6 @@
 <%- include('../../partials/header', { title: 'Dashboard Aset' }) %>
 
-<%# --- KOTAK STATISTIK (WARNA DIPERBAIKI) --- %>
+<%# --- KOTAK STATISTIK --- %>
 <div class="row g-3 mb-4">
     <%# Kotak Total Aset %>
     <div class="col-xl-3 col-md-6">
@@ -29,13 +29,16 @@
                 <div class="row g-0 align-items-center">
                     <div class="col">
                         <div class="text-xs fw-bold text-success text-uppercase mb-1">Tersedia</div>
-                        <div class="h5 mb-0 fw-bold text-success"><%= (stats && stats.statusCounts.Tersedia) ? stats.statusCounts.Tersedia : 0 %></div>
+                        <div class="h5 mb-0 fw-bold text-success"><%= stats.statusCounts['Tersedia'] || 0 %></div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-check-circle-fill h2 text-gray-300"></i>
                     </div>
                 </div>
             </div>
+             <a href="/loans" class="card-footer py-1 text-success small text-decoration-none">
+                Lihat Peminjaman <i class="bi bi-arrow-right-circle-fill"></i>
+            </a>
         </div>
     </div>
 
@@ -46,18 +49,19 @@
                 <div class="row g-0 align-items-center">
                     <div class="col">
                         <div class="text-xs fw-bold text-warning text-uppercase mb-1">Dipinjam</div>
-                        <div class="h5 mb-0 fw-bold text-warning"><%= (stats && stats.statusCounts.Dipinjam) ? stats.statusCounts.Dipinjam : 0 %></div>
+                        <div class="h5 mb-0 fw-bold text-warning"><%= stats.statusCounts['Dipinjam'] || 0 %></div>
                     </div>
                     <div class="col-auto">
-                        <i class="bi bi-arrow-left-right h2 text-gray-300"></i>
+                        <i class="bi bi-person-lines-fill h2 text-gray-300"></i>
                     </div>
                 </div>
             </div>
-            <a href="/loans" class="card-footer py-1 text-warning small text-decoration-none">
+             <a href="/loans" class="card-footer py-1 text-warning small text-decoration-none">
                 Lihat Peminjaman <i class="bi bi-arrow-right-circle-fill"></i>
             </a>
         </div>
     </div>
+    
     <%# Kotak Aset Perbaikan %>
     <div class="col-xl-3 col-md-6">
         <div class="card shadow-sm border-start border-danger border-4 h-100">
@@ -65,158 +69,235 @@
                 <div class="row g-0 align-items-center">
                     <div class="col">
                         <div class="text-xs fw-bold text-danger text-uppercase mb-1">Perbaikan</div>
-                        <div class="h5 mb-0 fw-bold text-danger"><%= (stats && stats.statusCounts.Perbaikan) ? stats.statusCounts.Perbaikan : 0 %></div>
+                        <div class="h5 mb-0 fw-bold text-danger"><%= stats.statusCounts['Perbaikan'] || 0 %></div>
                     </div>
                     <div class="col-auto">
                         <i class="bi bi-tools h2 text-gray-300"></i>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-<%# --- AKHIR KOTAK STATISTIK --- %>
-<%# --- GRAFIK RINGKASAN & WIDGET BARU --- %>
-<div class="row g-4 mb-4">
-    <div class="col-lg-7">
-        <div class="card shadow-sm h-100">
-            <div class="card-header py-3">
-                <h6 class="mb-0 fw-semibold text-primary"><i class="bi bi-pie-chart-fill me-1"></i> Ringkasan Aset per Kategori</h6>
-            </div>
-            <div class="card-body d-flex align-items-center justify-content-center">
-                <% if (stats && stats.categoryCounts && Object.keys(stats.categoryCounts).length > 0) { %>
-                    <div style="width: 100%; max-width: 400px; height: 300px;"><canvas id="categoryChartCanvas"></canvas></div>
-                <% } else { %>
-                    <p class="text-muted fst-italic">Data kategori tidak ditemukan.</p>
-                <% } %>
-            </div>
-        </div>
-    </div>
-    
-    <%# WIDGET MAINTENANCE %>
-    <div class="col-lg-5">
-        <div class="card shadow-sm h-100">
-            <div class="card-header py-3">
-                <h6 class="mb-0 fw-semibold text-primary"><i class="bi bi-wrench-adjustable-circle-fill me-1"></i> Maintenance Bulan Ini</h6>
-            </div>
-            <div class="card-body p-3 small">
-                <% if (typeof recentMaintenances !== 'undefined' && recentMaintenances && recentMaintenances.length > 0) { %>
-                    <ul class="list-group list-group-flush">
-                        <% recentMaintenances.forEach(log => { %>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-1 py-2">
-                                <div>
-                                    <% if(log.item) { %>
-                                        <a href="/items/<%= log.item.id %>" class="text-decoration-none fw-medium"><%= log.item.name %></a>
-                                    <% } else { %>
-                                        <span class="fw-medium text-muted">Aset Dihapus</span>
-                                    <% } %>
-                                    <small class="d-block text-muted" title="<%= log.description %>">
-                                        <%= log.description.substring(0, 50) %><% if(log.description.length > 50) { %>...<% } %>
-                                    </small>
-                                </div>
-                                <span class="badge text-bg-light fw-normal"><%= new Date(log.activity_date).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) %></span>
-                            </li>
-                        <% }) %>
-                    </ul>
-                <% } else { %>
-                    <p class="text-muted fst-italic text-center m-0 pt-3">Belum ada aktivitas maintenance bulan ini.</p>
-                <% } %>
-            </div>
-            <a href="/reports/maintenance" class="card-footer text-center py-2 text-decoration-none small">
-                Lihat Semua Laporan Maintenance
+             <a href="/reports/maintenance" class="card-footer py-1 text-danger small text-decoration-none">
+                Lihat Laporan <i class="bi bi-arrow-right-circle-fill"></i>
             </a>
         </div>
     </div>
 </div>
 
-<%# --- TABEL DAFTAR ASET --- %>
-<div class="card shadow-sm" id="assetTable">
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="mb-0 fw-semibold text-primary"><i class="bi bi-list-task me-1"></i> Daftar Aset (<%= totalItems %> Aset Ditemukan)</h6>
-        <a href="/items/create" class="btn btn-primary btn-sm rounded-pill"><i class="bi bi-plus-lg me-1"></i>Tambah Aset Baru</a>
-    </div>
-    <div class="card-body p-0">
-        <div class="p-3 bg-light-subtle border-bottom">
-            <form action="/" method="GET" class="row g-2 align-items-center">
-                <div class="col-md-6 col-lg-7"><div class="input-group input-group-sm">
-                    <span class="input-group-text bg-light border-0 text-muted"><i class="bi bi-search"></i></span>
-                    <input type="text" name="search" class="form-control" placeholder="Cari Nama Aset, Host PC, No. Inventaris, S/N..." value="<%= search || '' %>">
-                </div></div>
-                <div class="col-md-3 col-lg-3"><select name="categoryId" class="form-select form-select-sm">
-                    <option value="">Semua Kategori</option>
-                    <% categories.forEach(cat => { %><option value="<%= cat.id %>" <%= categoryId == cat.id ? 'selected' : '' %>><%= cat.name %></option><% }) %>
-                </select></div>
-                <div class="col-md-3 col-lg-2"><button type="submit" class="btn btn-secondary btn-sm w-100">Filter</button></div>
-            </form>
+<div class="row g-4 mb-4">
+    <div class="col-lg-7"> 
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h6 class="m-0 fw-bold text-primary-emphasis"><i class="bi bi-pie-chart-fill me-2"></i>Ringkasan Aset per Kategori</h6>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                <% if (stats.categoryCounts && Object.keys(stats.categoryCounts).length > 0) { %>
+                    <canvas id="categoryChartCanvas" style="max-height: 300px;"></canvas>
+                <% } else { %>
+                    <p class="text-muted fst-italic m-0 small">Data kategori masih kosong.</p>
+                <% } %>
+            </div>
         </div>
-        <div class="table-responsive small">
-            <table class="table table-hover table-striped mb-0 align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col" class="text-center" style="width: 40px;">No</th>
-                        <th scope="col">Nama Aset / Host PC</th>
-                        <th scope="col">Kategori</th>
-                        <th scope="col">PIC / Dept / Lokasi</th>
-                        <th scope="col">Kondisi</th>
-                        <th scope="col">Status</th>
-                        <th scope="col" class="text-center" style="width: 120px;">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if(items && items.length > 0) { %>
-                        <% items.forEach((item, index) => { %>
-                            <tr>
-                                <td class="text-center text-muted"><%= offset + index + 1 %></td>
-                                <td><a href="/items/<%= item.id %>" class="text-decoration-none fw-medium"><%= item.name %></a><small class="d-block text-muted"><%= item.host_pc_name || item.model || '' %></small></td>
-                                <td><span class="badge rounded-pill text-bg-light fw-normal"><%= item.category ? item.category.name : 'N/A' %></span></td>
-                                <td><span class="fw-medium"><%= item.pic_name %></span><small class="d-block text-muted"><% if(item.category && item.category.name === 'Laptop/PC') { %><%= item.department ? item.department.name : 'N/A' %><% } else { %><%= item.location ? item.location.name : 'N/A' %><% } %></small></td>
-                                <td>
-                                    <% if(item.condition === 'Baik') { %><span class="badge text-bg-success fw-normal"><i class="bi bi-check-circle me-1"></i> <%= item.condition %></span><% } else if(item.condition === 'Rusak Ringan' || item.condition === 'Rusak') { %><span class="badge text-bg-warning fw-normal"><i class="bi bi-exclamation-triangle me-1"></i> <%= item.condition %></span><% } else { %><span class="badge text-bg-secondary fw-normal"><%= item.condition %></span><% } %>
-                                </td>
-                                <td>
-                                    <% if(item.availability_status === 'Tersedia') { %><span class="badge text-bg-success-subtle text-success-emphasis fw-normal"><%= item.availability_status %></span><% } else if(item.availability_status === 'Dipinjam') { %><span class="badge text-bg-warning-subtle text-warning-emphasis fw-normal"><%= item.availability_status %></span><% } else { %><span class="badge text-bg-danger-subtle text-danger-emphasis fw-normal"><%= item.availability_status %></span><% } %>
-                                </td>
-                                <td class="text-center">
-                                    <%# Baris 1 %>
-                                    <div class="mb-1">
-                                        <a href="/items/<%= item.id %>" class="btn btn-outline-primary btn-sm py-0 px-1 me-1" title="Lihat Detail"><i class="bi bi-eye-fill"></i></a>
-                                        <button class="btn btn-outline-dark btn-sm py-0 px-1" title="Generate QR Code"
-                                            data-bs-toggle="modal" data-bs-target="#qrCodeModal"
-                                            data-item-id="<%= item.id %>" data-item-name="<%= item.name %>">
-                                            <i class="bi bi-qr-code"></i>
-                                        </button>
-                                    </div>
-                                    <%# Baris 2 %>
-                                    <div>
-                                        <a href="/items/<%= item.id %>/edit" class="btn btn-outline-warning btn-sm py-0 px-1 me-1" title="Edit Aset"><i class="bi bi-pencil-fill"></i></a>
-                                        <form action="/items/<%= item.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus aset <%= item.name %>? Tindakan ini tidak dapat dibatalkan.');">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-1" title="Hapus">
-                                                <i class="bi bi-trash-fill"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
+    </div>
+    
+    <div class="col-lg-5">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="m-0 fw-bold text-primary-emphasis"><i class="bi bi-tools me-2"></i>Maintenance Bulan Ini</h6>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush small">
+                    <% if (recentMaintenances.length > 0) { %>
+                        <% recentMaintenances.forEach(log => { %>
+                            <li class="list-group-item">
+                                <a href="/items/<%= log.item.id %>" class="text-decoration-none fw-medium"><%= log.item.name %></a>
+                                <p class="mb-0 text-muted text-truncate" style="font-size: 0.9em;"><%= log.description %></p>
+                            </li>
                         <% }) %>
                     <% } else { %>
-                        <tr><td colspan="7" class="text-center text-muted fst-italic py-4">Belum ada data aset. <a href="/items/create" class="text-decoration-none">Tambah Aset Baru</a></td></tr>
+                        <li class="list-group-item text-center text-muted fst-italic p-3">Belum ada data maintenance bulan ini.</li>
                     <% } %>
-                </tbody>
-            </table>
+                </ul>
+            </div>
         </div>
-        <div class="card-footer d-flex justify-content-between align-items-center small">
-            <div class="text-muted">Menampilkan <%= items.length %> dari <%= totalItems %> total aset ditemukan.</div>
-            <% if (totalPages > 1) { %>
-                <nav aria-label="Page navigation"><ul class="pagination pagination-sm mb-0">
-                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>"><a class="page-link" href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&categoryId=<%= categoryId || '' %>&search=<%= search || '' %>">Prev</a></li>
-                    <% for(let i = 1; i <= totalPages; i++) { %><li class="page-item <%= i === currentPage ? 'active' : '' %>"><a class="page-link" href="?page=<%= i %>&limit=<%= limit %>&categoryId=<%= categoryId || '' %>&search=<%= search || '' %>"><%= i %></a></li><% } %>
-                    <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>"><a class="page-link" href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&categoryId=<%= categoryId || '' %>&search=<%= search || '' %>">Next</a></li>
-                </ul></nav>
-            <% } %>
+        
+        <div class="card shadow-sm border-start border-danger border-4">
+            <div class="card-header bg-danger-subtle text-danger-emphasis py-2">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Reminder Peminjaman Telat</h6>
+            </div>
+            <div class="card-body p-0">
+                <% if (typeof overdueLoans !== 'undefined' && overdueLoans.length > 0) { %>
+                    <ul class="list-group list-group-flush small">
+                        <% overdueLoans.forEach(loan => { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-danger"><%= loan.borrower_name %></strong> telat mengembalikan 
+                                    <strong class="text-dark"><%= loan.item ? loan.item.name : 'Aset Dihapus' %></strong>.
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-muted">Jatuh Tempo:</span>
+                                    <span class="fw-medium text-danger"><%= new Date(loan.due_date).toLocaleDateString('id-ID') %></span>
+                                </div>
+                            </li>
+                        <% }) %>
+                    </ul>
+                    <a href="/loans" class="card-footer py-1 text-danger-emphasis small text-decoration-none fw-medium">
+                        Lihat semua peminjaman <i class="bi bi-arrow-right-circle-fill"></i>
+                    </a>
+                <% } else { %>
+                    <div class="text-center p-4 text-muted fst-italic small">
+                        <i class="bi bi-check-circle-fill text-success me-1"></i>Aman! Tidak ada peminjaman yang telat.
+                    </div>
+                <% } %>
+            </div>
         </div>
     </div>
 </div>
+<div class="row g-3 mb-4" id="assetTable">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-bottom-0 py-3">
+                 <div class="d-flex justify-content-between align-items-center">
+                    
+                    <h4 class="mb-0 fw-bold text-primary-emphasis"><i class="bi bi-box-seam me-2"></i>Daftar Aset IT</h4>
 
+                    <form action="/" method="GET" class="d-flex" id="filterForm">
+                        <input type="hidden" name="sort" value="<%= sort %>">
+                        <input type="hidden" name="order" value="<%= order %>">
+
+                        <div class="input-group input-group-sm me-2">
+                            <label class="input-group-text" for="limit"><i class="bi bi-eye-fill"></i></label>
+                            <select name="limit" id="limit" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                                <option value="10" <%= limit == 10 ? 'selected' : '' %>>View 10</option>
+                                <option value="25" <%= limit == 25 ? 'selected' : '' %>>View 25</option>
+                                <option value="50" <%= limit == 50 ? 'selected' : '' %>>View 50</option>
+                                <option value="100" <%= limit == 100 ? 'selected' : '' %>>View 100</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group input-group-sm me-2">
+                            <label class="input-group-text" for="categoryId"><i class="bi bi-filter"></i></label>
+                            <select name="categoryId" id="categoryId" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                                <option value="">Semua Kategori</option>
+                                <% categories.forEach(cat => { %>
+                                    <option value="<%= cat.id %>" <%= (categoryId == cat.id) ? 'selected' : '' %>><%= cat.name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="search" class="form-control" placeholder="Cari aset..." value="<%= search %>">
+                            <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                        </div>
+                    </form>
+                    </div>
+            </div>
+            
+            <div class="card-body p-0">
+                <div class="table-responsive small"> 
+                    <table class="table table-hover table-striped mb-0 align-middle">
+                        <thead class="table-primary text-white sticky-top" style="font-size: 0.95rem;">
+                            <tr>
+                                <th scope="col" class="ps-3">No.</th>
+                                
+                                <th scope="col">
+                                    <% const nextOrderName = (sort === 'name' && order === 'ASC') ? 'DESC' : 'ASC'; %>
+                                    <a href="?page=1&limit=<%= limit %>&search=<%= search %>&categoryId=<%= categoryId %>&sort=name&order=<%= nextOrderName %>" class="text-white text-decoration-none">
+                                        Nama Aset
+                                        <% if (sort === 'name') { %>
+                                            <i class="bi <%= order === 'ASC' ? 'bi-sort-up' : 'bi-sort-down' %>"></i>
+                                        <% } %>
+                                    </a>
+                                </th>
+                                <th scope="col">
+                                    <% const nextOrderCat = (sort === 'category' && order === 'ASC') ? 'DESC' : 'ASC'; %>
+                                    <a href="?page=1&limit=<%= limit %>&search=<%= search %>&categoryId=<%= categoryId %>&sort=category&order=<%= nextOrderCat %>" class="text-white text-decoration-none">
+                                        Kategori
+                                        <% if (sort === 'category') { %>
+                                            <i class="bi <%= order === 'ASC' ? 'bi-sort-up' : 'bi-sort-down' %>"></i>
+                                        <% } %>
+                                    </a>
+                                </th>
+                                <th scope="col">Lokasi / Dept</th>
+                                <th scope="col">
+                                     <% const nextOrderPic = (sort === 'pic_name' && order === 'ASC') ? 'DESC' : 'ASC'; %>
+                                    <a href="?page=1&limit=<%= limit %>&search=<%= search %>&categoryId=<%= categoryId %>&sort=pic_name&order=<%= nextOrderPic %>" class="text-white text-decoration-none">
+                                        PIC
+                                        <% if (sort === 'pic_name') { %>
+                                            <i class="bi <%= order === 'ASC' ? 'bi-sort-up' : 'bi-sort-down' %>"></i>
+                                        <% } %>
+                                    </a>
+                                </th>
+                                <th scope="col" class="text-center">Aksi</th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                            <% if(items && items.length > 0) { %>
+                                <% items.forEach((item, index) => { %>
+                                    <tr>
+                                        <td class="ps-3 text-muted"><%= offset + index + 1 %></td>
+                                        <td>
+                                            <a href="/items/<%= item.id %>" class="text-decoration-none fw-medium"><%= item.name %></a>
+                                            <div class="text-muted" style="font-size: 0.9em;"><%= item.host_pc_name || item.model || '' %></div>
+                                        </td>
+                                        <td><span class="badge rounded-pill text-bg-secondary fw-normal"><%= item.category ? item.category.name : 'N/A' %></span></td>
+                                        <td>
+                                            <% if(item.category && item.category.name === 'Laptop/PC') { %>
+                                                <%= item.department ? item.department.name : 'N/A' %>
+                                            <% } else { %>
+                                                <%= item.location ? item.location.name : 'N/A' %>
+                                            <% } %>
+                                        </td>
+                                        <td><%= item.pic_name %></td>
+                                        <td class="text-center">
+                                            <a href="/items/<%= item.id %>" class="btn btn-primary btn-sm py-0 px-1" title="Lihat Detail"><i class="bi bi-eye-fill"></i></a>
+                                            
+                                            <button class="btn btn-dark btn-sm py-0 px-1" title="Generate QR Code"
+                                                data-bs-toggle="modal" data-bs-target="#qrCodeModal"
+                                                data-item-id="<%= item.id %>" data-item-name="<%= item.name %>">
+                                                <i class="bi bi-qr-code"></i>
+                                            </button>
+
+                                            <a href="/items/<%= item.id %>/edit" class="btn btn-warning btn-sm py-0 px-1" title="Edit Aset"><i class="bi bi-pencil-fill"></i></a>
+                                            
+                                            <form action="/items/<%= item.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus aset <%= item.name %>? Tindakan ini tidak dapat dibatalkan.');">
+                                                <button type="submit" class="btn btn-danger btn-sm py-0 px-1" title="Hapus">
+                                                    <i class="bi bi-trash-fill"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr><td colspan="6" class="text-center text-muted fst-italic py-4">Belum ada data aset. <a href="/items/create" class="text-decoration-none">Tambah Aset Baru</a></td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+             <% if (totalPages > 1) { %>
+            <div class="card-footer d-flex justify-content-between align-items-center small">
+                 <div class="text-muted">Menampilkan <%= items.length %> dari <%= totalItems %> total aset. Halaman <%= currentPage %> dari <%= totalPages %>.</div>
+                 <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&categoryId=<%= categoryId || '' %>&search=<%= search || '' %>&sort=<%= sort %>&order=<%= order %>">Prev</a>
+                        </li>
+                        <% for(let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?page=<%= i %>&limit=<%= limit %>&categoryId=<%= categoryId || '' %>&search=<%= search || '' %>&sort=<%= sort %>&order=<%= order %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&categoryId=<%= categoryId || '' %>&search=<%= search || '' %>&sort=<%= sort %>&order=<%= order %>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <% } %>
+            </div>
+    </div>
+</div>
 <%- include('../../partials/qr_modal') %> 
 <%- include('../../partials/footer') %>
 

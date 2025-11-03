@@ -8,7 +8,6 @@ const Asset = sequelize.define('Asset', {
   },
   no_inventaris: {
     type: DataTypes.STRING,
-    unique: true
   },
   model_tipe: DataTypes.STRING,
   kategori: DataTypes.STRING,

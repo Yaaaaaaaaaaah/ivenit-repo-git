@@ -4,8 +4,7 @@ module.exports = (sequelize) => {
   return sequelize.define('Department', {
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+      allowNull: false
     },
     division: {
       type: DataTypes.STRING,
