@@ -4,24 +4,21 @@ const { Sequelize } = require('sequelize');
 let sequelize;
 
 if (process.env.NODE_ENV === 'production') {
-  // --- KONFIGURASI PRODUCTION (RAILWAY - MySQL) ---
-  // Ini sekarang menggunakan variabel MySQL dari Railway
   
   if (!process.env.MYSQL_HOST) {
     throw new Error('Variabel database (MYSQL_HOST, dll) belum di-set di environment production.');
   }
 
   sequelize = new Sequelize(
-    process.env.MYSQL_DB || process.env.MYSQL_DATABASE, // Nama DB dari Railway
-    process.env.MYSQL_USER,     // User dari Railway
-    process.env.MYSQL_PASSWORD, // Password dari Railway
+    process.env.MYSQL_DB || process.env.MYSQL_DATABASE, 
+    process.env.MYSQL_USER,     
+    process.env.MYSQL_PASSWORD, 
     {
-      host: process.env.MYSQL_HOST, // Host dari Railway
-      port: process.env.MYSQL_PORT, // Port dari Railway
-      dialect: 'mysql', // Dialeknya tetap mysql
+      host: process.env.MYSQL_HOST, 
+      port: process.env.MYSQL_PORT, 
+      dialect: 'mysql', 
       logging: false,
       dialectOptions: {
-        // Opsi SSL mungkin diperlukan oleh Railway untuk MySQL
         ssl: {
           require: true,
           rejectUnauthorized: false 
@@ -29,10 +26,7 @@ if (process.env.NODE_ENV === 'production') {
       }
     }
   );
-
 } else {
-  // --- KONFIGURASI DEVELOPMENT (LOCALHOST - MySQL) ---
-  // Ini tetap sama, pakai MySQL lokal Anda
   sequelize = new Sequelize(
     process.env.DB_NAME_LOCAL || 'ivenit_db', 
     process.env.DB_USER_LOCAL || 'root',      
