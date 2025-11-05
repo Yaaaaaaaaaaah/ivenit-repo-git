@@ -4,12 +4,14 @@ const { Item, Category, Location, Department, ItemSpecification, MaintenanceLog,
 const { Op } = require('sequelize'); 
 const qrcode = require('qrcode');
 const dayjs = require('dayjs'); 
-const cloudinary = require('cloudinary').v2;
+
+// --- PERUBAHAN (Cloudinary -> ImageKit) ---
+const imagekit = require('../config/imagekit'); // Panggil config ImageKit
+// --- AKHIR PERUBAHAN ---
 
 // Variabel "pintar"
 const isProduction = process.env.NODE_ENV && process.env.NODE_ENV.trim() === 'production';
 
-// ... (FUNGSI calculateAssetMetrics, list, show, showCreateForm TETAP SAMA) ...
 function calculateAssetMetrics(item) {
     let umurAset = 'N/A';
     let statusGaransi = 'N/A';
@@ -43,6 +45,7 @@ function calculateAssetMetrics(item) {
     }
     return { umurAset, statusGaransi, statusGaransiBadge };
 }
+
 exports.list = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -163,6 +166,7 @@ exports.list = async (req, res) => {
         res.status(500).send(`Gagal memuat daftar aset. Detail: ${error.message} ${error.original ? '(' + error.original.message + ')' : ''}`);
     }
 };
+
 exports.show = async (req, res) => {
     try {
         const item = await Item.findByPk(req.params.id, {
@@ -197,6 +201,7 @@ exports.show = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
+
 exports.showCreateForm = async (req, res) => {
     try {
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
@@ -213,6 +218,8 @@ exports.showCreateForm = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
+
+// --- PERUBAHAN (Kondisional Create - ImageKit) ---
 exports.create = async (req, res) => {
     const t = await sequelize.transaction();
     try {
@@ -224,16 +231,24 @@ exports.create = async (req, res) => {
         } = req.body;
 
         let imageUrl = null;
-        let imagePublicId = null;
+        let imageFileId = null; // <-- Ganti nama variabel
 
         if (req.file) {
-            if (isProduction) { 
-                imageUrl = req.file.path;
-                imagePublicId = req.file.filename;
+            if (isProduction) {
+                // Di Render: Upload dari Memori (Buffer) ke ImageKit
+                const response = await imagekit.upload({
+                    file: req.file.buffer, // Ambil dari memori
+                    fileName: req.file.originalname, // Pakai nama asli
+                    folder: 'ivenit_uploads'
+                });
+                imageUrl = response.url; // URL dari ImageKit
+                imageFileId = response.fileId; // File ID dari ImageKit
             } else {
+                // Di Localhost: Buat path lokal (tetap sama)
                 imageUrl = `/uploads/${req.file.filename}`;
             }
         }
+        
         if (serial_number) {
             const existingSN = await Item.findOne({ where: { serial_number: serial_number } });
             if (existingSN) throw new Error(`Data duplikat. Serial number "${serial_number}" sudah digunakan.`);
@@ -251,7 +266,7 @@ exports.create = async (req, res) => {
             condition, pic_name, notes: notes || null,
             categoryId, locationId: locationId || null, departmentId: departmentId || null,
             image_url: imageUrl, 
-            image_public_id: imagePublicId 
+            image_file_id: imageFileId // <-- Simpan File ID baru
         }, { transaction: t });
 
         const specificationsToCreate = [];
@@ -266,14 +281,13 @@ exports.create = async (req, res) => {
 
     } catch (error) {
         await t.rollback();
+        // Hapus file JIKA terjadi error
         if (req.file) {
-            if (isProduction) { 
-                try {
-                    await cloudinary.uploader.destroy(req.file.filename);
-                } catch (cloudinaryError) {
-                    console.error("PERINGATAN: Gagal hapus file di Cloudinary saat rollback create:", cloudinaryError.message);
-                }
+            if (isProduction) {
+                // Tidak ada file untuk dihapus dari ImageKit karena upload gagal (belum ter-commit)
+                console.error("Upload ImageKit mungkin gagal:", error.message);
             } else {
+                // Hapus dari Lokal
                 fs.unlink(req.file.path, (err) => {
                     if (err) console.error("Gagal hapus file lokal setelah error:", err);
                 });
@@ -293,6 +307,7 @@ exports.create = async (req, res) => {
         });
     }
 };
+
 exports.showEditForm = async (req, res) => {
     try {
         const item = await Item.findByPk(req.params.id, {
@@ -320,10 +335,13 @@ exports.showEditForm = async (req, res) => {
         res.status(500).send(error.message);
     }
 };
+
+// --- PERUBAHAN (Kondisional Update - ImageKit) ---
 exports.update = async (req, res) => {
     const t = await sequelize.transaction();
     const itemId = req.params.id;
-    let newImageFile = null; 
+    let newImageFile = null; // Penampung jika ada file baru
+    
     try {
         const itemToUpdate = await Item.findByPk(itemId);
         if (!itemToUpdate) return res.status(404).send('Aset tidak ditemukan');
@@ -345,18 +363,26 @@ exports.update = async (req, res) => {
         }
 
         let imageUrl = itemToUpdate.image_url;
-        let imagePublicId = itemToUpdate.image_public_id;
-        const oldPublicId = itemToUpdate.image_public_id;
+        let imageFileId = itemToUpdate.image_file_id; // <-- Ganti nama
+        
+        const oldFileId = itemToUpdate.image_file_id; // <-- Ganti nama
         const oldLocalPath = itemToUpdate.image_url;
 
         if (req.file) {
-            newImageFile = req.file; 
-            if (isProduction) { 
-                imageUrl = req.file.path;
-                imagePublicId = req.file.filename;
+            newImageFile = req.file; // Simpan untuk rollback
+            if (isProduction) {
+                // 1. Upload file BARU ke ImageKit
+                const response = await imagekit.upload({
+                    file: req.file.buffer,
+                    fileName: req.file.originalname,
+                    folder: 'ivenit_uploads'
+                });
+                imageUrl = response.url;
+                imageFileId = response.fileId;
             } else {
+                // 2. Pakai file LOKAL baru
                 imageUrl = `/uploads/${req.file.filename}`;
-                imagePublicId = null; 
+                imageFileId = null; 
             }
         }
 
@@ -368,17 +394,20 @@ exports.update = async (req, res) => {
             condition, pic_name, notes: notes || null,
             categoryId, locationId: locationId || null, departmentId: departmentId || null,
             image_url: imageUrl, 
-            image_public_id: imagePublicId
+            image_file_id: imageFileId // <-- Ganti nama
         }, { transaction: t });
         
+        // Hapus file LAMA (jika ada file baru di-upload)
         if (req.file) {
-            if (oldPublicId) {
+            if (oldFileId) {
+                // Hapus dari ImageKit (pakai File ID)
                 try {
-                    await cloudinary.uploader.destroy(oldPublicId);
-                } catch (cloudinaryError) {
-                    console.error("PERINGATAN: Gagal hapus file lama di Cloudinary saat update:", cloudinaryError.message);
+                    await imagekit.deleteFile(oldFileId);
+                } catch (imageKitError) {
+                    console.error("PERINGATAN: Gagal hapus file lama di ImageKit saat update:", imageKitError.message);
                 }
             } else if (oldLocalPath) {
+                // Hapus dari Lokal
                 const fullOldPath = path.join(__dirname, '..', 'public', oldLocalPath);
                 if (fs.existsSync(fullOldPath)) {
                     fs.unlinkSync(fullOldPath);
@@ -399,18 +428,12 @@ exports.update = async (req, res) => {
 
     } catch (error) {
         await t.rollback();
-        if (newImageFile) {
-            if (isProduction) { 
-                try {
-                    await cloudinary.uploader.destroy(newImageFile.filename);
-                } catch (cloudinaryError) {
-                    console.error("PERINGATAN: Gagal hapus file baru di Cloudinary saat rollback update:", cloudinaryError.message);
-                }
-            } else {
-                fs.unlink(newImageFile.path, (err) => {
-                    if (err) console.error("Gagal hapus file baru setelah error:", err);
-                });
-            }
+        // Hapus file BARU jika error (tapi HANYA jika file LOKAL)
+        // Kita tidak perlu hapus dari ImageKit karena transaksi di-rollback
+        if (newImageFile && !isProduction) {
+            fs.unlink(newImageFile.path, (err) => {
+                if (err) console.error("Gagal hapus file baru setelah error:", err);
+            });
         }
         
         const categories = await Category.findAll({ order: [['name', 'ASC']] });
@@ -428,7 +451,7 @@ exports.update = async (req, res) => {
     }
 };
 
-// --- PERBAIKAN FINAL (HTTP 500 FIX) ---
+// --- PERUBAHAN (Kondisional Delete - ImageKit) ---
 exports.delete = async (req, res) => {
     try {
         const itemToDelete = await Item.findByPk(req.params.id);
@@ -436,43 +459,35 @@ exports.delete = async (req, res) => {
             return res.status(404).send('Aset tidak ditemukan');
         }
 
-        // 1. Simpan path/ID file sebelum menghapus data
-        const imagePublicId = itemToDelete.image_public_id;
+        const imageFileId = itemToDelete.image_file_id; // <-- Ganti nama
         const imageUrl = itemToDelete.image_url;
 
-        // 2. Hapus data dari database DULU
         await Item.destroy({ where: { id: req.params.id } });
 
-        // 3. BARU coba hapus file fisiknya
-        if (imagePublicId) {
-            // Hapus dari Cloudinary, TAPI JANGAN BIKIN CRASH JIKA GAGAL
+        if (imageFileId) {
+            // Hapus dari ImageKit (dan jangan bikin crash jika gagal)
             try {
-                await cloudinary.uploader.destroy(imagePublicId);
-            } catch (cloudinaryError) {
-                // Log error-nya ke console, tapi jangan hentikan server
-                console.error("PERINGATAN: Gagal hapus file di Cloudinary:", cloudinaryError.message);
-                console.error("File Public ID:", imagePublicId);
-                // Lanjutkan...
+                await imagekit.deleteFile(imageFileId);
+            } catch (imageKitError) {
+                console.error("PERINGATAN: Gagal hapus file di ImageKit:", imageKitError.message);
+                console.error("File ID:", imageFileId);
             }
         
         } else if (imageUrl) {
-            // Hapus dari Lokal (ini hanya untuk mode development)
+            // Hapus dari Lokal
             const localPath = path.join(__dirname, '..', 'public', imageUrl);
             if (fs.existsSync(localPath)) { 
                 fs.unlinkSync(localPath); 
             }
         }
 
-        // 4. Redirect kembali ke dashboard (PASTI SAMPAI SINI)
         res.redirect('/');
         
     } catch (error) {
-        // Ini hanya akan menangkap error jika Item.destroy (database) GAGAL
         console.error("Error Kritis saat menghapus aset dari DB:", error);
         res.status(500).send(error.message);
     }
 };
-// --- AKHIR PERBAIKAN ---
 
 exports.qrCode = async (req, res) => {
     try {
