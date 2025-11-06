@@ -5,11 +5,8 @@ const { Op } = require('sequelize');
 const qrcode = require('qrcode');
 const dayjs = require('dayjs'); 
 
-// --- PERUBAHAN (Cloudinary -> ImageKit) ---
-const imagekit = require('../config/imagekit'); // Panggil config ImageKit
-// --- AKHIR PERUBAHAN ---
+const imagekit = require('../config/imagekit'); 
 
-// Variabel "pintar"
 const isProduction = process.env.NODE_ENV && process.env.NODE_ENV.trim() === 'production';
 
 function calculateAssetMetrics(item) {
@@ -219,7 +216,6 @@ exports.showCreateForm = async (req, res) => {
     }
 };
 
-// --- PERUBAHAN (Kondisional Create - ImageKit) ---
 exports.create = async (req, res) => {
     const t = await sequelize.transaction();
     try {
@@ -231,20 +227,18 @@ exports.create = async (req, res) => {
         } = req.body;
 
         let imageUrl = null;
-        let imageFileId = null; // <-- Ganti nama variabel
+        let imageFileId = null; 
 
         if (req.file) {
             if (isProduction) {
-                // Di Render: Upload dari Memori (Buffer) ke ImageKit
                 const response = await imagekit.upload({
-                    file: req.file.buffer, // Ambil dari memori
-                    fileName: req.file.originalname, // Pakai nama asli
+                    file: req.file.buffer, 
+                    fileName: req.file.originalname, 
                     folder: 'ivenit_uploads'
                 });
-                imageUrl = response.url; // URL dari ImageKit
-                imageFileId = response.fileId; // File ID dari ImageKit
+                imageUrl = response.url; 
+                imageFileId = response.fileId; 
             } else {
-                // Di Localhost: Buat path lokal (tetap sama)
                 imageUrl = `/uploads/${req.file.filename}`;
             }
         }
@@ -266,7 +260,7 @@ exports.create = async (req, res) => {
             condition, pic_name, notes: notes || null,
             categoryId, locationId: locationId || null, departmentId: departmentId || null,
             image_url: imageUrl, 
-            image_file_id: imageFileId // <-- Simpan File ID baru
+            image_file_id: imageFileId 
         }, { transaction: t });
 
         const specificationsToCreate = [];
@@ -281,13 +275,10 @@ exports.create = async (req, res) => {
 
     } catch (error) {
         await t.rollback();
-        // Hapus file JIKA terjadi error
         if (req.file) {
             if (isProduction) {
-                // Tidak ada file untuk dihapus dari ImageKit karena upload gagal (belum ter-commit)
                 console.error("Upload ImageKit mungkin gagal:", error.message);
             } else {
-                // Hapus dari Lokal
                 fs.unlink(req.file.path, (err) => {
                     if (err) console.error("Gagal hapus file lokal setelah error:", err);
                 });
@@ -336,11 +327,10 @@ exports.showEditForm = async (req, res) => {
     }
 };
 
-// --- PERUBAHAN (Kondisional Update - ImageKit) ---
 exports.update = async (req, res) => {
     const t = await sequelize.transaction();
     const itemId = req.params.id;
-    let newImageFile = null; // Penampung jika ada file baru
+    let newImageFile = null; 
     
     try {
         const itemToUpdate = await Item.findByPk(itemId);
@@ -363,15 +353,14 @@ exports.update = async (req, res) => {
         }
 
         let imageUrl = itemToUpdate.image_url;
-        let imageFileId = itemToUpdate.image_file_id; // <-- Ganti nama
+        let imageFileId = itemToUpdate.image_file_id; 
         
-        const oldFileId = itemToUpdate.image_file_id; // <-- Ganti nama
+        const oldFileId = itemToUpdate.image_file_id; 
         const oldLocalPath = itemToUpdate.image_url;
 
         if (req.file) {
-            newImageFile = req.file; // Simpan untuk rollback
+            newImageFile = req.file; 
             if (isProduction) {
-                // 1. Upload file BARU ke ImageKit
                 const response = await imagekit.upload({
                     file: req.file.buffer,
                     fileName: req.file.originalname,
@@ -380,7 +369,6 @@ exports.update = async (req, res) => {
                 imageUrl = response.url;
                 imageFileId = response.fileId;
             } else {
-                // 2. Pakai file LOKAL baru
                 imageUrl = `/uploads/${req.file.filename}`;
                 imageFileId = null; 
             }
@@ -394,20 +382,17 @@ exports.update = async (req, res) => {
             condition, pic_name, notes: notes || null,
             categoryId, locationId: locationId || null, departmentId: departmentId || null,
             image_url: imageUrl, 
-            image_file_id: imageFileId // <-- Ganti nama
+            image_file_id: imageFileId 
         }, { transaction: t });
         
-        // Hapus file LAMA (jika ada file baru di-upload)
         if (req.file) {
             if (oldFileId) {
-                // Hapus dari ImageKit (pakai File ID)
                 try {
                     await imagekit.deleteFile(oldFileId);
                 } catch (imageKitError) {
                     console.error("PERINGATAN: Gagal hapus file lama di ImageKit saat update:", imageKitError.message);
                 }
             } else if (oldLocalPath) {
-                // Hapus dari Lokal
                 const fullOldPath = path.join(__dirname, '..', 'public', oldLocalPath);
                 if (fs.existsSync(fullOldPath)) {
                     fs.unlinkSync(fullOldPath);
@@ -428,8 +413,6 @@ exports.update = async (req, res) => {
 
     } catch (error) {
         await t.rollback();
-        // Hapus file BARU jika error (tapi HANYA jika file LOKAL)
-        // Kita tidak perlu hapus dari ImageKit karena transaksi di-rollback
         if (newImageFile && !isProduction) {
             fs.unlink(newImageFile.path, (err) => {
                 if (err) console.error("Gagal hapus file baru setelah error:", err);
@@ -451,7 +434,6 @@ exports.update = async (req, res) => {
     }
 };
 
-// --- PERUBAHAN (Kondisional Delete - ImageKit) ---
 exports.delete = async (req, res) => {
     try {
         const itemToDelete = await Item.findByPk(req.params.id);
@@ -459,13 +441,12 @@ exports.delete = async (req, res) => {
             return res.status(404).send('Aset tidak ditemukan');
         }
 
-        const imageFileId = itemToDelete.image_file_id; // <-- Ganti nama
+        const imageFileId = itemToDelete.image_file_id; 
         const imageUrl = itemToDelete.image_url;
 
         await Item.destroy({ where: { id: req.params.id } });
 
         if (imageFileId) {
-            // Hapus dari ImageKit (dan jangan bikin crash jika gagal)
             try {
                 await imagekit.deleteFile(imageFileId);
             } catch (imageKitError) {
@@ -474,7 +455,6 @@ exports.delete = async (req, res) => {
             }
         
         } else if (imageUrl) {
-            // Hapus dari Lokal
             const localPath = path.join(__dirname, '..', 'public', imageUrl);
             if (fs.existsSync(localPath)) { 
                 fs.unlinkSync(localPath); 
